@@ -36,6 +36,7 @@ show_tools() {
                 "nodejs") echo "- Node.js with NVM" ;;
                 "ohmyzsh") echo "- Zsh framework with plugins" ;;
                 "python") echo "- Python with pyenv" ;;
+                "ssh") echo "- SSH key generation and management" ;;
                 "tmux") echo "- Terminal multiplexer" ;;
                 "vim") echo "- Text editor with plugins" ;;
                 "dev-tools") echo "- Development tools (protoc, IDEs, etc.)" ;;
