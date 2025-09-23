@@ -94,12 +94,12 @@ else
     print_info "bat is already installed"
 fi
 
-# exa - better ls
-if ! command -v exa &> /dev/null; then
-    brew install exa
-    print_success "exa installed (modern ls replacement)"
+# eza - better ls (maintained fork of exa)
+if ! command -v eza &> /dev/null; then
+    brew install eza
+    print_success "eza installed (modern ls replacement)"
 else
-    print_info "exa is already installed"
+    print_info "eza is already installed"
 fi
 
 # ripgrep - better grep
@@ -179,7 +179,7 @@ print_info "  - zsh-completions"
 print_info "  - z (directory jumping)"
 print_info "  - fzf (fuzzy finder)"
 print_info "  - bat (better cat)"
-print_info "  - exa (better ls)"
+print_info "  - eza (better ls)"
 print_info "  - ripgrep (better grep)"
 print_info "  - htop (better top)"
 print_info "  - Configuration symlinks (.zshrc and .p10k.zsh)"

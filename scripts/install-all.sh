@@ -70,6 +70,7 @@ fi
 
 # Installation order matters for some dependencies
 declare -a tools=(
+    "ssh:SSH key generation for GitHub/GitLab"
     "fonts:Nerd Fonts for terminal display"
     "golang:Go (with golangci-lint and mockery)"
     "nodejs:Node.js (with NVM)"

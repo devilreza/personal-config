@@ -75,7 +75,7 @@ This will:
 - **fzf** - Fuzzy finder for history and files
 - **z** - Jump to frequently used directories
 - **bat** - Better cat with syntax highlighting
-- **exa** - Modern ls replacement
+- **eza** - Modern ls replacement (maintained fork of exa)
 - **ripgrep** - Fast grep alternative
 - **htop** - Interactive process viewer
 
@@ -96,4 +96,4 @@ Edit the `plugins` array in `zshrc` to add more Oh My Zsh plugins.
 2. Use `Ctrl+R` for fuzzy history search (fzf)
 3. Use `z <partial-path>` to jump to directories
 4. Use `bat` instead of `cat` for syntax-highlighted file viewing
-5. Use `exa` instead of `ls` for better directory listings
+5. Use `eza` instead of `ls` for better directory listings
