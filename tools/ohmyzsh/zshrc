@@ -128,26 +128,85 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 # source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 # export PATH=$PATH:/opt/homebrew/opt/openfortivpn/bin
-go env -w GOPRIVATE="gitlab.snapp.ir,github.com/payment-sys"
+go env -w GOPRIVATE="github.com/payment-sys"
 export PATH="$PATH:$(go env GOPATH)/bin"
-. "$HOME/.local/bin/env"
 
- export NVM_DIR="$HOME/.nvm"
-   [ -s "/opt/homebrew/opt/nvm/nvm.sh"  ] && \. "/opt/homebrew/opt/nvm/nvm.sh"  # This loads nvm
-     [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # NOTE: These aliases contain tokens - consider using environment variables for security
-alias ode="oc login --token=eyJhbGciOiJSUzI1NiIsImtpZCI6IkI0MHI5eXJLTFVqcjVPTmNxOFBLWGFZRkUzb09pdHFRX2ZTV1ZRbVpQY0EifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJtb3phcnQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoiY29uZHVjdG9yLXRva2VuLTI3MjVyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImNvbmR1Y3RvciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImVjZWU1N2ExLWQzNjEtNGRmNi1iNjQxLTRmNDQwMDUwNmZlMSIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDptb3phcnQ6Y29uZHVjdG9yIn0.KU5awAy1skTBQEIaFdxnSAMwMbVH3KyX1o82GQEMRNQ3K0sYXZFwJ8l0dElJi5X05nrShLnq8siRUFNTWdes9tJSbucZppH93MQkzMRJSfekcLuA0rX7t9BdP1NCC2UA-aWRX3RFuvjLvQeEYTEmBdZYrjtlNU6gS7M7XxE1mS7zhmWtYJH3Jwr41rURqw_1vahpHN1dob9ivZatUVUpMu8yM5GdZhNf2B1ISnQXvKibDAZ_JSg3_IHU2QX29-Xu_kO5VgT3nNKSss4bv_0ZxRyedX74QZhJNzcDmbzg2J1VuNisJc0YlNyyIwTvFbSdK6JR-KaKxfUyFpBRzIwHhA --server=https://api.okd4.teh-1.snappcloud.io:6443"
-
-alias bde="oc login --token=eyJhbGciOiJSUzI1NiIsImtpZCI6IkI0MHI5eXJLTFVqcjVPTmNxOFBLWGFZRkUzb09pdHFRX2ZTV1ZRbVpQY0EifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJiYWx5LW9kZS0wMDEiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoiY29uZHVjdG9yLXRva2VuLXpkNzYyIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImNvbmR1Y3RvciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImE3YzNlOThkLTNkZDgtNGIxMy1hYWM2LTU5Y2E1MjM0MmIzYyIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpiYWx5LW9kZS0wMDE6Y29uZHVjdG9yIn0.RZtrsnuSMIkEmkeNcvuDxy-FhVOfGjO1UxGyo8m7W37Yo0TuQ1R4fBxkBSot6D7Pf1eCv__nmqcOsXZk6C55_lDUpF1onCLmkYiurh5KygXxBS7GQcHEsWoMxX-M4x3KcKSQtf3N2dhcOSADranYeTbrKLilEA2dwVSZ1mRAveoSeNOE2F_B8QfgCgG8IDwi55tTzFbpkktiyCmn2evIZGo6K-OO4a8JhvR-pcP3kWMyY5dmkbUged5r4niL87l4P868JT5UerqkemT_CKTE7dYxIYUQ5TkJ8MdVvFF1xKw3-bSBa2SAdl7wBgn0OJHr0MOQzx4VXq6AIuTr6rFyAg --server=https://api.okd4.teh-1.snappcloud.io:6443"
 ___MY_VMOPTIONS_SHELL_FILE="${HOME}/.jetbrains.vmoptions.sh"; if [ -f "${___MY_VMOPTIONS_SHELL_FILE}" ]; then . "${___MY_VMOPTIONS_SHELL_FILE}"; fi
-unset TOTP_PASS
-TOTP_PASS="$(gpg --quiet --batch --decrypt ~/.topt/totp-pass.txt.gpg)"
-export TOTP_PASS
 export PATH="$HOME/.local/bin:$PATH"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# Go environment
+export GOPATH=$HOME/go
+export PATH=$PATH:$GOPATH/bin
+
+# Docker completion
+if command -v docker &> /dev/null; then
+    # Docker CLI completion
+    autoload -Uz compinit && compinit
+fi
+
+# doctl completion
+if command -v doctl &> /dev/null; then
+    source <(doctl completion zsh)
+fi
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# kubectl completion
+if command -v kubectl &> /dev/null; then
+    source <(kubectl completion zsh)
+fi
+
+# OpenShift client completion
+if command -v oc &> /dev/null; then
+    source <(oc completion zsh)
+fi
+
+# Helm completion
+if command -v helm &> /dev/null; then
+    source <(helm completion zsh)
+fi
+
+# kubectl aliases
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get svc'
+alias kgd='kubectl get deployment'
+alias kaf='kubectl apply -f'
+alias kdel='kubectl delete'
+alias klog='kubectl logs'
+alias kexec='kubectl exec -it'
+alias kctx='kubectx'
+alias kns='kubens'
+
+# pyenv configuration
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+if command -v pyenv &> /dev/null; then
+    eval "$(pyenv init --path)"
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+export PATH="$HOME/.local/bin:$PATH"
+
+# Git completion is handled by Oh My Zsh git plugin
+# Additional git aliases
+alias g='git'
+alias gst='git status'
+alias gco='git checkout'
+alias gcm='git commit -m'
+alias gaa='git add --all'
+alias gp='git push'
+alias gl='git pull'
+alias glog='git log --oneline --decorate --graph'
+alias gdiff='git diff'
+alias lg='lazygit'
+export PATH="$HOME/.local/bin:$PATH"
