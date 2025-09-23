@@ -65,6 +65,10 @@ This will:
 - **git** - Git aliases and functions
 - **zsh-autosuggestions** - Fish-like autosuggestions
 - **zsh-syntax-highlighting** - Fish-like syntax highlighting
+- **fast-syntax-highlighting** - Improved syntax highlighting with better performance
+- **zsh-256color** - 256 color support for terminals
+- **colorize** - Syntax highlighting for file contents (requires pygments)
+- **colored-man-pages** - Adds colors to man pages
 - **kubectl** - Kubernetes completion and aliases
 - **docker** - Docker completion and aliases
 - **golang** - Go development support
@@ -97,3 +101,5 @@ Edit the `plugins` array in `zshrc` to add more Oh My Zsh plugins.
 3. Use `z <partial-path>` to jump to directories
 4. Use `bat` instead of `cat` for syntax-highlighted file viewing
 5. Use `eza` instead of `ls` for better directory listings
+6. Use `ccat <file>` or `colorize <file>` for syntax-highlighted file viewing
+7. Man pages are automatically colored with the colored-man-pages plugin

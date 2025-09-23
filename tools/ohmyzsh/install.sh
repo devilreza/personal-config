@@ -63,6 +63,26 @@ else
     print_success "zsh-completions installed"
 fi
 
+# Install fast-syntax-highlighting (better than zsh-syntax-highlighting)
+print_info "Installing fast-syntax-highlighting plugin..."
+FAST_SYNTAX_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting"
+if [ -d "$FAST_SYNTAX_DIR" ]; then
+    print_success "fast-syntax-highlighting is already installed"
+else
+    git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$FAST_SYNTAX_DIR"
+    print_success "fast-syntax-highlighting installed"
+fi
+
+# Install zsh-256color plugin
+print_info "Installing zsh-256color plugin..."
+COLOR_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-256color"
+if [ -d "$COLOR_DIR" ]; then
+    print_success "zsh-256color is already installed"
+else
+    git clone https://github.com/chrissicool/zsh-256color "$COLOR_DIR"
+    print_success "zsh-256color installed"
+fi
+
 # Install z (directory jumping)
 print_info "Installing z (directory jumping)..."
 if command -v z &> /dev/null; then
@@ -116,6 +136,15 @@ if ! command -v htop &> /dev/null; then
     print_success "htop installed (interactive process viewer)"
 else
     print_info "htop is already installed"
+fi
+
+# Install pygments for colorize plugin
+print_info "Installing pygments (for syntax highlighting)..."
+if ! command -v pygmentize &> /dev/null; then
+    brew install pygments
+    print_success "pygments installed (syntax highlighter)"
+else
+    print_info "pygments is already installed"
 fi
 
 # Setup configuration symlinks
@@ -175,6 +204,8 @@ print_info "  - Oh My Zsh framework"
 print_info "  - Powerlevel10k theme"
 print_info "  - zsh-autosuggestions"
 print_info "  - zsh-syntax-highlighting"
+print_info "  - fast-syntax-highlighting"
+print_info "  - zsh-256color"
 print_info "  - zsh-completions"
 print_info "  - z (directory jumping)"
 print_info "  - fzf (fuzzy finder)"
@@ -182,6 +213,7 @@ print_info "  - bat (better cat)"
 print_info "  - eza (better ls)"
 print_info "  - ripgrep (better grep)"
 print_info "  - htop (better top)"
+print_info "  - pygments (syntax highlighter)"
 print_info "  - Configuration symlinks (.zshrc and .p10k.zsh)"
 print_info ""
 print_info "Restart your terminal to apply changes"
