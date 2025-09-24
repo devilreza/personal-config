@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 # Common functions for installation scripts
 
 # Colors for output
