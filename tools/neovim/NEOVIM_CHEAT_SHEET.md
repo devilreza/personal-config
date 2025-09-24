@@ -125,7 +125,6 @@
 |-----|--------|-------------|
 | `<C-h>` | Move left | Move to left window |
 | `<C-j>` | Move down | Move to down window |
-| `<C-k>` | Move up | Move to up window |
 | `<C-l>` | Move right | Move to right window |
 | `<C-Up>` | Resize up | Resize window up |
 | `<C-Down>` | Resize down | Resize window down |
@@ -249,6 +248,8 @@
 | `<leader>p` | Toggle paste mode | Toggle paste mode |
 | `<leader>ts` | Toggle tabs/spaces | Toggle indentation type |
 | `<leader>cw` | Clean whitespace | Remove trailing whitespace |
+
+
 
 ---
 

@@ -132,7 +132,7 @@ return {
   -- =============================================================================
   {
     "nvim-telescope/telescope.nvim",
-    tag = "0.1.0",
+    branch = "0.1.x",  -- Use the stable 0.1.x branch instead of old tag
     dependencies = {
       "nvim-lua/plenary.nvim",
       {
@@ -253,13 +253,26 @@ return {
       require("colorizer").setup()
     end,
   },
-  {
-    "lewis6991/spellsitter.nvim",
-    event = "BufReadPre",
-    config = function()
-      require("spellsitter").setup()
-    end,
-  },
+  -- Disabled due to Neovim 0.11.x compatibility issues
+  -- The plugin uses deprecated vim.treesitter.get_query API
+  -- {
+  --   "lewis6991/spellsitter.nvim",
+  --   event = "BufReadPre",
+  --   config = function()
+  --     require("spellsitter").setup()
+  --   end,
+  -- },
+  
+  -- Alternative: Built-in spell checking configuration
+  -- Add this to your init.lua or create a separate spell config:
+  -- vim.opt.spell = true
+  -- vim.opt.spelllang = { 'en_us' }
+  -- vim.api.nvim_create_autocmd("FileType", {
+  --   pattern = { "markdown", "text", "gitcommit" },
+  --   callback = function()
+  --     vim.opt_local.spell = true
+  --   end,
+  -- })
   {
     "kylechui/nvim-surround",
     version = "*",
