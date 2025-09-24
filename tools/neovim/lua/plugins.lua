@@ -289,6 +289,15 @@ return {
     "tpope/vim-rhubarb",
     event = "BufReadPre",
   },
+  
+  -- Git conflict resolution
+  {
+    "akinsho/git-conflict.nvim",
+    version = "*",
+    config = function()
+      require("config.git-conflict")
+    end,
+  },
   {
     "tpope/vim-sleuth",
     event = "BufReadPre",

@@ -16,6 +16,9 @@ keymap("i", "jj", "<ESC>", opts)
 keymap("i", "jk", "<ESC>", opts)
 keymap("i", "kj", "<ESC>", opts)
 
+-- Quick line selection
+keymap("n", "vv", "V", opts)  -- Double tap v to select line
+
 -- Better navigation
 keymap("n", "<C-h>", "<C-w>h", opts)
 keymap("n", "<C-j>", "<C-w>j", opts)
@@ -48,6 +51,30 @@ keymap("n", "<C-q>", ":q<CR>", opts)
 keymap("n", "<leader>w", ":w<CR>", opts)
 keymap("n", "<leader>q", ":q<CR>", opts)
 keymap("n", "<leader>x", ":x<CR>", opts)
+
+-- =============================================================================
+-- UNDO/REDO CONFIGURATION
+-- =============================================================================
+
+-- Option 1: Make Ctrl+Z work as undo (instead of suspending Neovim)
+keymap("n", "<C-z>", "u", opts)
+keymap("i", "<C-z>", "<C-o>u", opts)
+keymap("v", "<C-z>", "<ESC>u", opts)
+
+-- Option 2: Keep traditional suspend, but add alternative undo mappings
+-- Comment out the above and uncomment below if you prefer traditional behavior
+-- keymap("n", "<C-z>", "<C-z>", opts)  -- Keep default suspend behavior
+
+-- Ctrl+Shift+Z or Ctrl+Y for redo (common in many editors)
+keymap("n", "<C-S-z>", "<C-r>", opts)
+keymap("i", "<C-S-z>", "<C-o><C-r>", opts)
+keymap("v", "<C-S-z>", "<ESC><C-r>", opts)
+keymap("n", "<C-y>", "<C-r>", opts)
+keymap("i", "<C-y>", "<C-o><C-r>", opts)
+
+-- Additional undo/redo helpers
+keymap("n", "U", "<C-r>", opts)  -- Capital U for redo (easier to type)
+keymap("n", "<leader>u", ":UndotreeToggle<CR>", opts)  -- Visual undo tree
 
 -- =============================================================================
 -- BUFFER MANAGEMENT
@@ -151,6 +178,7 @@ keymap("n", "<leader>fr", ":Telescope oldfiles<CR>", opts)
 keymap("n", "<leader>fc", ":Telescope colorscheme<CR>", opts)
 keymap("n", "<leader>fq", ":Telescope quickfix<CR>", opts)
 keymap("n", "<leader>fl", ":Telescope loclist<CR>", opts)
+keymap("n", "<leader>fw", ":Telescope grep_string<CR>", opts)  -- Search word under cursor
 
 -- =============================================================================
 -- NVIM-TREE KEYMAPS
@@ -183,7 +211,6 @@ keymap("v", "<leader>/", ":CommentToggle<CR>", opts)
 -- =============================================================================
 
 -- Utility keymaps
-keymap("n", "<leader>u", ":UndotreeToggle<CR>", opts)
 keymap("n", "<leader>n", ":set number!<CR>", opts)
 keymap("n", "<leader>rn", ":set relativenumber!<CR>", opts)
 keymap("n", "<leader>p", ":set paste!<CR>", opts)
