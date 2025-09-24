@@ -20,7 +20,13 @@ mason.setup({
 
 -- Setup Mason LSP Config
 mason_lspconfig.setup({
-  ensure_installed = { "gopls", "lua_ls" },
+  ensure_installed = { 
+    "gopls", 
+    "lua_ls",
+    "bufls",           -- Protocol Buffers language server
+    "dockerls",        -- Dockerfile language server
+    "docker_compose_language_service", -- Docker Compose language server
+  },
   automatic_installation = true,
 })
 
@@ -78,7 +84,13 @@ local on_attach = function(client, bufnr)
 end
 
 -- Enable LSP servers using modern API
-vim.lsp.enable({ 'gopls', 'lua_ls' })
+vim.lsp.enable({ 
+  'gopls', 
+  'lua_ls',
+  'bufls',
+  'dockerls',
+  'docker_compose_language_service'
+})
 
 -- LSP attach autocommand for completion
 vim.api.nvim_create_autocmd('LspAttach', {

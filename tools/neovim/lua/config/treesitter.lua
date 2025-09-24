@@ -20,9 +20,12 @@ require("nvim-treesitter.configs").setup({
     "rust",
     "c",
     "cpp",
+    "proto",
+    -- "dockerfile", -- Temporarily disabled due to parser issues
   },
   sync_install = false,
   auto_install = true,
+  ignore_install = { "dockerfile" }, -- Ignore dockerfile parser due to extraction issues
   highlight = {
     enable = true,
     additional_vim_regex_highlighting = false,

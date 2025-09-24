@@ -53,8 +53,8 @@ function M.setup()
         vim.cmd("!go test " .. vim.fn.expand("%"))
       end, vim.tbl_extend("force", opts, { desc = "Run Go tests for current file" }))
       
-      -- Run go run
-      vim.keymap.set("n", "<leader>gr", function()
+      -- Run go run (changed from <leader>gr to avoid conflict with LSP references)
+      vim.keymap.set("n", "<leader>gx", function()
         vim.cmd("!go run " .. vim.fn.expand("%"))
       end, vim.tbl_extend("force", opts, { desc = "Run Go program" }))
       
@@ -106,6 +106,9 @@ function M.setup()
       end, vim.tbl_extend("force", opts, { desc = "Go fmt" }))
     end,
   })
+  
+  -- Load Go commands (vim-go replacements)
+  require("config.go-commands").setup()
 end
 
 return M

@@ -25,15 +25,19 @@ require("options")
 require("keymaps")
 require("autocmds")
 
--- Load plugin configurations
-require("config.lsp")
-require("config.treesitter")
-require("config.gitsigns")
-require("config.comment")
-require("config.go").setup()
-require("config.spell").setup()
-require("config.file-finder").setup()
-require("config.autosave").setup()
-require("config.undo").setup()
-require("config.search").setup()
-require("config.git").setup()
+-- Load additional configurations after plugins are loaded
+vim.api.nvim_create_autocmd("User", {
+  pattern = "VeryLazy",
+  callback = function()
+    -- These configurations are not tied to specific plugins
+    require("config.go").setup()
+    require("config.grpc").setup()
+    require("config.dockerfile").setup()
+    require("config.spell").setup()
+    require("config.file-finder").setup()
+    require("config.autosave").setup()
+    require("config.undo").setup()
+    require("config.search").setup()
+    require("config.git").setup()
+  end,
+})
