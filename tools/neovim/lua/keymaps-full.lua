@@ -72,6 +72,9 @@ keymap("n", "<C-j>", "<C-w>j", opts)
 keymap("n", "<C-k>", "<C-w>k", opts)
 keymap("n", "<C-l>", "<C-w>l", opts)
 
+-- Window splitting (macOS-style)
+keymap("n", "<D-.>", ":vsplit<CR>", opts)
+
 -- Window splits
 keymap("n", "<leader>sv", ":vsplit<CR>", { desc = "Split window vertically" })
 keymap("n", "<leader>sh", ":split<CR>", { desc = "Split window horizontally" })
@@ -148,9 +151,13 @@ keymap("n", "<leader>x", ":x<CR>", opts)
 -- =============================================================================
 
 -- Option 1: Make Ctrl+Z work as undo (instead of suspending Neovim)
-keymap("n", "<C-z>", "u", opts)
-keymap("i", "<C-z>", "<C-o>u", opts)
-keymap("v", "<C-z>", "<ESC>u", opts)
+-- macOS-style undo/redo with Cmd+Z/Cmd+Shift+Z
+keymap("n", "<D-z>", "u", opts)
+keymap("i", "<D-z>", "<C-o>u", opts)
+keymap("v", "<D-z>", "<ESC>u", opts)
+keymap("n", "<D-S-z>", "<C-r>", opts)
+keymap("i", "<D-S-z>", "<C-o><C-r>", opts)
+keymap("v", "<D-S-z>", "<ESC><C-r>", opts)
 
 -- Option 2: Keep traditional suspend, but add alternative undo mappings
 -- Comment out the above and uncomment below if you prefer traditional behavior

@@ -122,6 +122,16 @@ keymap("n", "<leader>gt", ":GoTest<CR>", { desc = "Run tests" })
 keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 
 -- =============================================================================
+-- UNDO/REDO (macOS-style)
+-- =============================================================================
+keymap("n", "<D-z>", "u", { desc = "Undo" })
+keymap("i", "<D-z>", "<C-o>u", { desc = "Undo (insert mode)" })
+keymap("v", "<D-z>", "<ESC>u", { desc = "Undo (visual mode)" })
+keymap("n", "<D-S-z>", "<C-r>", { desc = "Redo" })
+keymap("i", "<D-S-z>", "<C-o><C-r>", { desc = "Redo (insert mode)" })
+keymap("v", "<D-S-z>", "<ESC><C-r>", { desc = "Redo (visual mode)" })
+
+-- =============================================================================
 -- ADDITIONAL HELPFUL SHORTCUTS
 -- =============================================================================
 
@@ -137,6 +147,9 @@ keymap("n", "<C-h>", "<C-w>h", { desc = "Go to left window" })
 keymap("n", "<C-j>", "<C-w>j", { desc = "Go to bottom window" })
 keymap("n", "<C-k>", "<C-w>k", { desc = "Go to top window" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Go to right window" })
+
+-- Window splitting (macOS-style)
+keymap("n", "<D-.>", ":vsplit<CR>", { desc = "Split window vertically" })
 
 -- Show error details (like hovering in VSCode)
 keymap("n", "K", vim.lsp.buf.hover, { desc = "Show documentation" })
