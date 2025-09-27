@@ -72,10 +72,25 @@ keymap("n", "<C-w>", ":bdelete<CR>", { desc = "Close buffer" })
 -- =============================================================================
 -- SEARCH (VSCode-like)
 -- =============================================================================
-keymap("n", "<C-f>", "/", { desc = "Search in file" })
-keymap("n", "<C-S-f>", ":Telescope live_grep<CR>", { desc = "Search in project" })
+keymap("n", "<D-f>", ":Telescope current_buffer_fuzzy_find<CR>", { desc = "Search in file" })
+keymap("n", "<D-S-f>", ":Telescope live_grep<CR>", { desc = "Search in project" })
 -- n and N are already built-in for next/previous search
 keymap("n", "<Esc>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+
+-- Find and replace
+keymap("n", "<D-r>", ":%s//g<Left><Left>", { desc = "Find and replace in file" })
+keymap('n', '<D-S-r>', function()
+  require('telescope.builtin').live_grep({
+    attach_mappings = function(_, map)
+      map('i', '<C-r>', function(prompt_bufnr)
+        local selection = require('telescope.actions.state').get_selected_entry()
+        require('telescope.actions').close(prompt_bufnr)
+        vim.cmd(':%s/' .. selection.value .. '//g')
+      end)
+      return true
+    end,
+  })
+end, { desc = "Find and replace in project with Telescope" })
 
 -- =============================================================================
 -- ERROR NAVIGATION (VSCode-like)
