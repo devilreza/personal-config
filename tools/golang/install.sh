@@ -46,13 +46,39 @@ else
     print_success "golangci-lint installed successfully"
 fi
 
-# Install mockery
-print_info "Installing mockery..."
+# Uninstall current mockery and install v2.53.5
+print_info "Managing mockery installation (downgrading to v2.53.5)..."
 if command -v mockery &> /dev/null; then
-    print_success "mockery is already installed: $(mockery --version)"
+    current_version=$(mockery --version 2>/dev/null | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+' || echo "unknown")
+    if [[ "$current_version" == "v2.53.5" ]]; then
+        print_success "mockery v2.53.5 is already installed"
+    else
+        print_info "Current mockery version: $current_version"
+        print_info "Uninstalling current mockery version..."
+
+        # Try to uninstall via brew first
+        if brew list mockery &> /dev/null; then
+            brew uninstall mockery
+            print_info "Uninstalled mockery via Homebrew"
+        fi
+
+        # Remove any Go-installed version
+        if [[ -f "$GOPATH/bin/mockery" ]]; then
+            rm -f "$GOPATH/bin/mockery"
+            print_info "Removed mockery from GOPATH/bin"
+        fi
+
+        # Remove from Go module cache if present
+        go clean -modcache
+
+        print_info "Installing mockery v2.53.5..."
+        go install github.com/vektra/mockery/v2@v2.53.5
+        print_success "mockery downgraded to v2.53.5 successfully"
+    fi
 else
-    brew install mockery
-    print_success "mockery installed successfully"
+    print_info "Installing mockery v2.53.5..."
+    go install github.com/vektra/mockery/v2@v2.53.5
+    print_success "mockery v2.53.5 installed successfully"
 fi
 
 print_footer "Golang installation completed!"
