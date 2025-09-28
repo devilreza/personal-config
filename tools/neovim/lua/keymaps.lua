@@ -133,7 +133,9 @@ keymap("n", "<C-t>", ":Telescope lsp_workspace_symbols<CR>", { desc = "Go to sym
 -- =============================================================================
 keymap("n", "<leader>gr", ":GoRun<CR>", { desc = "Run Go program" })
 keymap("n", "<leader>gb", ":GoBuild<CR>", { desc = "Build Go program" })
-keymap("n", "<leader>gt", ":GoTest<CR>", { desc = "Run tests" })
+keymap("n", "<leader>gt", ":GoTest<CR>", { desc = "Run tests in package" })
+keymap("n", "<leader>gf", ":GoTestFile<CR>", { desc = "Run tests in current file" })
+keymap("n", "<leader>gc", ":GoTestFunc<CR>", { desc = "Run test function under cursor" })
 keymap("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 
 -- =============================================================================
@@ -196,6 +198,27 @@ keymap("n", "<leader>tp", "<cmd>lua _python_toggle()<CR>", { desc = "Toggle pyth
 -- Horizontal/Vertical terminal
 keymap("n", "<leader>th", ":ToggleTerm size=10 direction=horizontal<CR>", { desc = "Horizontal terminal" })
 keymap("n", "<leader>tv", ":ToggleTerm size=40 direction=vertical<CR>", { desc = "Vertical terminal" })
+
+-- =============================================================================
+-- GIT BLAME
+-- =============================================================================
+keymap("n", "<D-g>", ":Gitsigns toggle_current_line_blame<CR>", { desc = "Toggle git blame" })
+
+-- =============================================================================
+-- WORD MOVEMENT (Option + Arrow Keys)
+-- =============================================================================
+-- Option + Left Arrow: Move backward by word
+keymap("n", "<A-Left>", "b", { desc = "Move backward by word" })
+keymap("i", "<A-Left>", "<C-o>b", { desc = "Move backward by word (insert mode)" })
+keymap("v", "<A-Left>", "b", { desc = "Move backward by word (visual mode)" })
+
+-- Option + Right Arrow: Move forward by word
+keymap("n", "<A-Right>", "w", { desc = "Move forward by word" })
+keymap("i", "<A-Right>", "<C-o>w", { desc = "Move forward by word (insert mode)" })
+keymap("v", "<A-Right>", "w", { desc = "Move forward by word (visual mode)" })
+
+-- Option + Delete: Delete word backward (like macOS)
+keymap("i", "<A-BS>", "<C-w>", { desc = "Delete word backward (insert mode)" })
 
 -- =============================================================================
 -- INFO: Press ':help key-notation' to understand key combinations

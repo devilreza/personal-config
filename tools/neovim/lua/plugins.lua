@@ -24,7 +24,7 @@ return {
         flavour = "frappe", -- latte, frappe, macchiato, mocha
         background = { -- :h background
           light = "latte",
-          dark = "frappe",
+          dark = "mocha",
         },
         transparent_background = false,
         show_end_of_buffer = false,
@@ -80,7 +80,7 @@ return {
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "go", "lua", "json", "yaml", "bash", "dockerfile" },
+        ensure_installed = { "go", "gomod", "gosum", "lua", "json", "yaml", "bash", "dockerfile" },
         highlight = { enable = true },
         indent = { enable = true },
       })
@@ -289,6 +289,29 @@ return {
         after_saving = nil -- ran after doing the actual save
       }
     },
+  },
+
+  -- Git integration with blame support
+  {
+    "lewis6991/gitsigns.nvim",
+    config = function()
+      require('gitsigns').setup({
+        current_line_blame = false,
+        current_line_blame_opts = {
+          virt_text = true,
+          virt_text_pos = 'eol',
+          delay = 100,
+          ignore_whitespace = false,
+        },
+        signs = {
+          add = { text = '+' },
+          change = { text = '~' },
+          delete = { text = '_' },
+          topdelete = { text = '‾' },
+          changedelete = { text = '~' },
+        },
+      })
+    end,
   },
 
   -- Terminal (VSCode-like integrated terminal)
