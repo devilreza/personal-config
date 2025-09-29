@@ -57,17 +57,52 @@ return {
     end,
   },
 
+  -- Blink.cmp (Fast autocompletion)
+  {
+    "saghen/blink.cmp",
+    dependencies = "rafamadriz/friendly-snippets",
+    version = "*",
+    opts = {
+      keymap = {
+        preset = "enter",
+        ["<Tab>"] = { "select_next", "fallback" },
+        ["<S-Tab>"] = { "select_prev", "fallback" },
+        ["<CR>"] = { "accept", "fallback" },
+      },
+      appearance = {
+        use_nvim_cmp_as_default = true,
+        nerd_font_variant = "mono",
+      },
+      sources = {
+        default = { "lsp", "path", "snippets", "buffer" },
+      },
+      completion = {
+        accept = {
+          auto_brackets = {
+            enabled = true,
+          },
+        },
+        menu = {
+          draw = {
+            treesitter = { "lsp" },
+          },
+        },
+        documentation = {
+          auto_show = true,
+          auto_show_delay_ms = 200,
+        },
+      },
+      signature = { enabled = true },
+    },
+  },
+
   -- LSP Configuration (Essential for error highlighting)
   {
     "neovim/nvim-lspconfig",
     dependencies = {
       "williamboman/mason.nvim",
       "williamboman/mason-lspconfig.nvim",
-      "hrsh7th/nvim-cmp",           -- Autocompletion
-      "hrsh7th/cmp-nvim-lsp",       -- LSP completion
-      "hrsh7th/cmp-buffer",         -- Buffer completion
-      "L3MON4D3/LuaSnip",           -- Snippets
-      "saadparwaiz1/cmp_luasnip",   -- Snippet completion
+      "saghen/blink.cmp",
     },
     config = function()
       require("config.lsp-minimal")
@@ -165,11 +200,81 @@ return {
     config = true,
   },
 
-  -- Status Line (VSCode-like bottom bar)
+  -- Buffer/Tab Line (Shows open buffers at the top)
+  {
+    "akinsho/bufferline.nvim",
+    version = "*",
+    dependencies = { "nvim-tree/nvim-web-devicons", "catppuccin/nvim" },
+    config = function()
+      require("bufferline").setup({
+        options = {
+          mode = "buffers",
+          themable = true,
+          numbers = "none",
+          close_command = "bdelete! %d",
+          right_mouse_command = "bdelete! %d",
+          left_mouse_command = "buffer %d",
+          middle_mouse_command = nil,
+          indicator = {
+            icon = "▎",
+            style = "icon",
+          },
+          buffer_close_icon = "󰅖",
+          modified_icon = "●",
+          close_icon = "",
+          left_trunc_marker = "",
+          right_trunc_marker = "",
+          max_name_length = 18,
+          max_prefix_length = 15,
+          truncate_names = true,
+          tab_size = 18,
+          diagnostics = "nvim_lsp",
+          diagnostics_update_in_insert = false,
+          diagnostics_indicator = function(count, level, diagnostics_dict, context)
+            if level:match("error") then
+              return "●"
+            end
+            return ""
+          end,
+          offsets = {
+            {
+              filetype = "NvimTree",
+              text = "File Explorer",
+              text_align = "center",
+              separator = true,
+            },
+          },
+          color_icons = true,
+          show_buffer_icons = true,
+          show_buffer_close_icons = true,
+          show_close_icon = true,
+          show_tab_indicators = true,
+          show_duplicate_prefix = true,
+          persist_buffer_sort = true,
+          separator_style = "thin",
+          enforce_regular_tabs = false,
+          always_show_bufferline = true,
+          sort_by = "insert_after_current",
+        },
+        highlights = require("catppuccin.groups.integrations.bufferline").get_theme(),
+      })
+    end,
+  },
+
+  -- Status Line (VSCode-like bottom bar) with RTL indicator
   {
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     config = function()
+      -- Custom RTL status component
+      local function rtl_status()
+        if vim.wo.rightleft then
+          return "RL"
+        else
+          return "LR"
+        end
+      end
+
       require("lualine").setup({
         options = {
           theme = "catppuccin",
@@ -180,7 +285,7 @@ return {
           lualine_a = { "mode" },
           lualine_b = { "branch", "diff" },
           lualine_c = { { "filename", path = 1 } }, -- Show relative path
-          lualine_x = { "diagnostics", "encoding", "filetype" },
+          lualine_x = { rtl_status, "diagnostics", "encoding", "filetype" },
           lualine_y = { "progress" },
           lualine_z = { "location" },
         },
@@ -390,4 +495,5 @@ return {
       end
     end,
   },
+
 }

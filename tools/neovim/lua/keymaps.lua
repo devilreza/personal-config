@@ -16,6 +16,11 @@
 --   Ctrl+Q           - Quit
 --   Ctrl+W           - Close current tab/buffer
 --
+-- 📑 BUFFER NAVIGATION:
+--   Tab              - Next buffer
+--   Shift+Tab        - Previous buffer
+--   Ctrl+1-9         - Go to buffer 1-9
+--
 -- 🔍 SEARCH:
 --   Ctrl+F           - Search in file
 --   Ctrl+Shift+F     - Search in project
@@ -68,6 +73,19 @@ keymap("n", "<C-s>", ":w<CR>", { desc = "Save file" })
 keymap("i", "<C-s>", "<Esc>:w<CR>a", { desc = "Save file (insert mode)" })
 keymap("n", "<C-q>", ":q<CR>", { desc = "Quit" })
 keymap("n", "<C-w>", ":bdelete<CR>", { desc = "Close buffer" })
+
+-- =============================================================================
+-- BUFFER NAVIGATION (Tab Management)
+-- =============================================================================
+keymap("n", "<Tab>", ":BufferLineCycleNext<CR>", { desc = "Next buffer" })
+keymap("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
+keymap("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
+keymap("n", "<leader>bo", ":BufferLineCloseOthers<CR>", { desc = "Close other buffers" })
+
+-- Go to specific buffer by number (like Chrome/Firefox tabs)
+for i = 1, 9 do
+  keymap("n", "<D-" .. i .. ">", ":BufferLineGoToBuffer " .. i .. "<CR>", { desc = "Go to buffer " .. i })
+end
 
 -- =============================================================================
 -- SEARCH (VSCode-like)
@@ -219,6 +237,29 @@ keymap("v", "<A-Right>", "w", { desc = "Move forward by word (visual mode)" })
 
 -- Option + Delete: Delete word backward (like macOS)
 keymap("i", "<A-BS>", "<C-w>", { desc = "Delete word backward (insert mode)" })
+
+-- =============================================================================
+-- RTL/PERSIAN SUPPORT FOR PERSIAN CONTENT
+-- =============================================================================
+-- Toggle RTL mode using Neovim's built-in rightleft option
+keymap("n", "<leader>rt", function()
+  vim.wo.rightleft = not vim.wo.rightleft
+  if vim.wo.rightleft then
+    print("RTL mode enabled")
+  else
+    print("RTL mode disabled")
+  end
+end, { desc = "Toggle RTL mode" })
+
+keymap("n", "<leader>re", ":set rightleft<CR>", { desc = "Enable RTL mode" })
+keymap("n", "<leader>rd", ":set norightleft<CR>", { desc = "Disable RTL mode" })
+
+-- Set Persian keymap (you can toggle between Persian and English)
+keymap("n", "<leader>rp", ":set keymap=persian<CR>", { desc = "Set Persian keymap" })
+keymap("n", "<leader>rE", ":set keymap=<CR>", { desc = "Set English keymap" })
+
+-- Persian input toggle (Ctrl+^ is the standard way to toggle keymap)
+keymap("i", "<C-6>", "<C-^>", { desc = "Toggle Persian/English keymap" })
 
 -- =============================================================================
 -- INFO: Press ':help key-notation' to understand key combinations

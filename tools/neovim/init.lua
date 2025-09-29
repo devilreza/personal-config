@@ -52,6 +52,12 @@ vim.opt.clipboard = "unnamedplus" -- Use system clipboard
 -- Font (Fira Code with ligatures)
 vim.opt.guifont = "FiraCode Nerd Font:h18"
 
+-- RTL/Persian Support
+vim.opt.termbidi = true        -- Enable terminal bidirectional support if available
+vim.opt.encoding = "utf-8"     -- Ensure UTF-8 encoding for Persian characters
+vim.opt.rightleftcmd = "search" -- Allow search commands in RTL mode
+-- Persian keymap will be loaded automatically when needed
+
 -- Additional font settings for better rendering
 if vim.g.neovide then
   vim.g.neovide_cursor_vfx_mode = "railgun"
@@ -125,6 +131,27 @@ vim.api.nvim_create_autocmd("BufWritePre", {
       for _, r in pairs(res.result or {}) do
         if r.edit then
           vim.lsp.util.apply_workspace_edit(r.edit, "utf-8")
+        end
+      end
+    end
+  end,
+})
+
+-- Auto-close unchanged buffers when opening new files
+vim.api.nvim_create_autocmd("BufReadPost", {
+  callback = function()
+    -- Get list of all buffers
+    local buffers = vim.api.nvim_list_bufs()
+    for _, buf in ipairs(buffers) do
+      -- Check if buffer is loaded, not modified, not current, and is a normal file
+      if vim.api.nvim_buf_is_loaded(buf)
+         and not vim.api.nvim_buf_get_option(buf, "modified")
+         and buf ~= vim.api.nvim_get_current_buf()
+         and vim.api.nvim_buf_get_option(buf, "buftype") == "" then
+        -- Delete the buffer if it's not displayed in any window
+        local wins = vim.fn.win_findbuf(buf)
+        if #wins == 0 then
+          vim.api.nvim_buf_delete(buf, { force = false })
         end
       end
     end

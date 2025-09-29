@@ -1,0 +1,29 @@
+سلام دنیا! (Hello World!)
+
+این یک متن فارسی است برای آزمایش RTL در neovim.
+This is Persian text for testing RTL in neovim.
+
+ترکیب متن فارسی و English در یک خط
+Mixed Persian and English text in one line.
+
+نام‌های فارسی:
+- علیرضا
+- محمد
+- فاطمه
+
+English names:
+- John
+- Mary
+- David
+
+تست کدهای برنامه‌نویسی:
+```go
+package main
+import "fmt"
+func main() {
+    fmt.Println("سلام از Go!")
+}
+```
+
+Numbers in Persian: ۱۲۳۴۵۶۷۸۹۰
+Numbers in English: 1234567890

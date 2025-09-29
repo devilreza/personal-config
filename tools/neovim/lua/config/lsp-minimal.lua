@@ -3,8 +3,6 @@
 
 local mason = require("mason")
 local mason_lspconfig = require("mason-lspconfig")
-local cmp = require("cmp")
-local luasnip = require("luasnip")
 
 -- VSCode-like diagnostic configuration with enhanced error highlighting
 vim.diagnostic.config({
@@ -68,87 +66,42 @@ mason_lspconfig.setup({
   automatic_installation = true,
 })
 
--- Setup autocompletion
-cmp.setup({
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert({
-    ["<C-b>"] = cmp.mapping.scroll_docs(-4),
-    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-    ["<C-Space>"] = cmp.mapping.complete(),
-    ["<C-e>"] = cmp.mapping.abort(),
-    ["<CR>"] = cmp.mapping.confirm({ select = true }),
-    ["<Tab>"] = cmp.mapping.select_next_item(),
-    ["<S-Tab>"] = cmp.mapping.select_prev_item(),
-  }),
-  sources = {
-    { name = "nvim_lsp" },
-    { name = "luasnip" },
-    { name = "buffer" },
-  },
-  window = {
-    completion = cmp.config.window.bordered(),
-    documentation = cmp.config.window.bordered(),
-  },
+-- Get blink.cmp capabilities
+local capabilities = require('blink.cmp').get_lsp_capabilities()
+
+-- Setup lspconfig
+local lspconfig = require('lspconfig')
+
+-- Configure gopls
+lspconfig.gopls.setup({
+  capabilities = capabilities,
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+        shadow = true,
+        nilness = true,
+        unusedwrite = true,
+        ST1000 = false,  -- Disable package comment warnings
+      },
+      staticcheck = true,
+      gofumpt = true,
+      experimentalPostfixCompletions = true,
+      ["local"] = "",
+    }
+  }
 })
 
--- LSP servers configuration using modern vim.lsp.config (Neovim 0.11+)
-local configs = {
-  gopls = {
-    cmd = { 'gopls' },
-    filetypes = { 'go', 'gomod', 'gowork', 'gotmpl' },
-    root_markers = { 'go.work', 'go.mod', '.git' },
-    settings = {
-      gopls = {
-        analyses = {
-          unusedparams = true,
-          shadow = true,
-          nilness = true,
-          unusedwrite = true,
-          ST1000 = false,  -- Disable package comment warnings
-        },
-        staticcheck = true,
-        gofumpt = true,
-        experimentalPostfixCompletions = true,
-        ["local"] = "",
-        -- Staticcheck will automatically find staticcheck.conf in project root
-        -- No additional configuration needed for gopls
-      }
+-- Configure lua_ls
+lspconfig.lua_ls.setup({
+  capabilities = capabilities,
+  settings = {
+    Lua = {
+      diagnostics = { globals = {'vim'} },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
     }
-  },
-  lua_ls = {
-    cmd = { 'lua-language-server' },
-    filetypes = { 'lua' },
-    root_markers = { '.luarc.json', '.git' },
-    settings = {
-      Lua = {
-        diagnostics = { globals = {'vim'} },
-        workspace = {
-          library = vim.api.nvim_get_runtime_file("", true),
-          checkThirdParty = false,
-        },
-      }
-    }
-  },
-}
-
--- Setup LSP servers
-for name, config in pairs(configs) do
-  vim.lsp.config[name] = config
-end
-
--- Enable LSP servers
-vim.lsp.enable({ 'gopls', 'lua_ls' })
-
--- LSP attach autocommand for completion
-vim.api.nvim_create_autocmd('LspAttach', {
-  callback = function(ev)
-    local client = vim.lsp.get_client_by_id(ev.data.client_id)
-    if client and client.supports_method('textDocument/completion') then
-      vim.lsp.completion.enable(true, client.id, ev.buf, { autotrigger = true })
-    end
-  end,
+  }
 })
