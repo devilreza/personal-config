@@ -14,6 +14,92 @@ return {
     lazy = false,
   },
 
+  -- Dashboard
+  {
+    "nvimdev/dashboard-nvim",
+    event = "VimEnter",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function()
+      require("dashboard").setup({
+        theme = "doom",
+        config = {
+          header = {
+            "",
+            "",
+            "███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗",
+            "████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║",
+            "██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║",
+            "██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║",
+            "██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║",
+            "╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝",
+            "",
+            "",
+          },
+          center = {
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "Find File           ",
+              desc_hl = "String",
+              key = "f",
+              key_hl = "Number",
+              action = "Telescope find_files",
+            },
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "Recent Files        ",
+              desc_hl = "String",
+              key = "r",
+              key_hl = "Number",
+              action = "Telescope oldfiles",
+            },
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "Find Text           ",
+              desc_hl = "String",
+              key = "g",
+              key_hl = "Number",
+              action = "Telescope live_grep",
+            },
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "File Explorer       ",
+              desc_hl = "String",
+              key = "e",
+              key_hl = "Number",
+              action = "NvimTreeToggle",
+            },
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "Configuration       ",
+              desc_hl = "String",
+              key = "c",
+              key_hl = "Number",
+              action = "edit ~/.config/nvim/init.lua",
+            },
+            {
+              icon = "  ",
+              icon_hl = "Title",
+              desc = "Quit Neovim         ",
+              desc_hl = "String",
+              key = "q",
+              key_hl = "Number",
+              action = "quit",
+            },
+          },
+          footer = {
+            "",
+            "🚀 Ready to code!",
+          },
+        },
+      })
+    end,
+  },
+
   -- Catppuccin Theme
   {
     "catppuccin/nvim",
@@ -202,62 +288,92 @@ return {
 
   -- Buffer/Tab Line (Shows open buffers at the top)
   {
-    "akinsho/bufferline.nvim",
-    version = "*",
-    dependencies = { "nvim-tree/nvim-web-devicons", "catppuccin/nvim" },
+    "romgrk/barbar.nvim",
+    dependencies = {
+      "lewis6991/gitsigns.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+    init = function()
+      vim.g.barbar_auto_setup = false
+    end,
     config = function()
-      require("bufferline").setup({
-        options = {
-          mode = "buffers",
-          themable = true,
-          numbers = "none",
-          close_command = "bdelete! %d",
-          right_mouse_command = "bdelete! %d",
-          left_mouse_command = "buffer %d",
-          middle_mouse_command = nil,
-          indicator = {
-            icon = "▎",
-            style = "icon",
+      require("barbar").setup({
+        animation = true,
+        auto_hide = false,
+        tabpages = true,
+        clickable = true,
+        focus_on_close = "previous",
+        hide = { extensions = false, inactive = false },
+        highlight_alternate = false,
+        highlight_inactive_file_icons = false,
+        highlight_visible = true,
+        icons = {
+          buffer_index = false,
+          buffer_number = false,
+          button = "",
+          diagnostics = {
+            [vim.diagnostic.severity.ERROR] = { enabled = true, icon = "✘" },
+            [vim.diagnostic.severity.WARN] = { enabled = true, icon = "▲" },
+            [vim.diagnostic.severity.INFO] = { enabled = false },
+            [vim.diagnostic.severity.HINT] = { enabled = false },
           },
-          buffer_close_icon = "󰅖",
-          modified_icon = "●",
-          close_icon = "",
-          left_trunc_marker = "",
-          right_trunc_marker = "",
-          max_name_length = 18,
-          max_prefix_length = 15,
-          truncate_names = true,
-          tab_size = 18,
-          diagnostics = "nvim_lsp",
-          diagnostics_update_in_insert = false,
-          diagnostics_indicator = function(count, level, diagnostics_dict, context)
-            if level:match("error") then
-              return "●"
-            end
-            return ""
-          end,
-          offsets = {
-            {
-              filetype = "NvimTree",
-              text = "File Explorer",
-              text_align = "center",
-              separator = true,
-            },
+          gitsigns = {
+            added = { enabled = true, icon = "+" },
+            changed = { enabled = true, icon = "~" },
+            deleted = { enabled = true, icon = "-" },
           },
-          color_icons = true,
-          show_buffer_icons = true,
-          show_buffer_close_icons = true,
-          show_close_icon = true,
-          show_tab_indicators = true,
-          show_duplicate_prefix = true,
-          persist_buffer_sort = true,
-          separator_style = "thin",
-          enforce_regular_tabs = false,
-          always_show_bufferline = true,
-          sort_by = "insert_after_current",
+          filetype = {
+            custom_colors = false,
+            enabled = true,
+          },
+          separator = { left = "▎", right = "" },
+          separator_at_end = true,
+          modified = { button = "●" },
+          pinned = { button = "", filename = true },
+          preset = "default",
+          alternate = { filetype = { enabled = false } },
+          current = { buffer_index = false },
+          inactive = { button = "×" },
+          visible = { modified = { buffer_number = false } },
         },
-        highlights = require("catppuccin.groups.integrations.bufferline").get_theme(),
+        insert_at_end = false,
+        insert_at_start = false,
+        maximum_padding = 1,
+        minimum_padding = 1,
+        maximum_length = 30,
+        minimum_length = 0,
+        semantic_letters = true,
+        sidebar_filetypes = {
+          NvimTree = true,
+          dashboard = { event = "BufWinLeave" },
+        },
+        letters = "asdfjkl;ghnmxcvbziowerutyqpASDFJKLGHNMXCVBZIOWERUTYQP",
+        no_name_title = "[No Name]",
       })
+
+      -- Tab navigation with Tab key
+      vim.keymap.set("n", "<Tab>", "<Cmd>BufferNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
+      vim.keymap.set("n", "<S-Tab>", "<Cmd>BufferPrevious<CR>", { noremap = true, silent = true, desc = "Previous buffer" })
+
+      -- Additional barbar keymaps
+      vim.keymap.set("n", "<A-,>", "<Cmd>BufferPrevious<CR>", { noremap = true, silent = true, desc = "Previous buffer" })
+      vim.keymap.set("n", "<A-.>", "<Cmd>BufferNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
+      vim.keymap.set("n", "<A-<>", "<Cmd>BufferMovePrevious<CR>", { noremap = true, silent = true, desc = "Move buffer left" })
+      vim.keymap.set("n", "<A->>", "<Cmd>BufferMoveNext<CR>", { noremap = true, silent = true, desc = "Move buffer right" })
+      vim.keymap.set("n", "<A-c>", "<Cmd>BufferClose<CR>", { noremap = true, silent = true, desc = "Close buffer" })
+      vim.keymap.set("n", "<A-p>", "<Cmd>BufferPin<CR>", { noremap = true, silent = true, desc = "Pin/unpin buffer" })
+
+      -- Goto buffer in position...
+      vim.keymap.set("n", "<A-1>", "<Cmd>BufferGoto 1<CR>", { noremap = true, silent = true, desc = "Goto buffer 1" })
+      vim.keymap.set("n", "<A-2>", "<Cmd>BufferGoto 2<CR>", { noremap = true, silent = true, desc = "Goto buffer 2" })
+      vim.keymap.set("n", "<A-3>", "<Cmd>BufferGoto 3<CR>", { noremap = true, silent = true, desc = "Goto buffer 3" })
+      vim.keymap.set("n", "<A-4>", "<Cmd>BufferGoto 4<CR>", { noremap = true, silent = true, desc = "Goto buffer 4" })
+      vim.keymap.set("n", "<A-5>", "<Cmd>BufferGoto 5<CR>", { noremap = true, silent = true, desc = "Goto buffer 5" })
+      vim.keymap.set("n", "<A-6>", "<Cmd>BufferGoto 6<CR>", { noremap = true, silent = true, desc = "Goto buffer 6" })
+      vim.keymap.set("n", "<A-7>", "<Cmd>BufferGoto 7<CR>", { noremap = true, silent = true, desc = "Goto buffer 7" })
+      vim.keymap.set("n", "<A-8>", "<Cmd>BufferGoto 8<CR>", { noremap = true, silent = true, desc = "Goto buffer 8" })
+      vim.keymap.set("n", "<A-9>", "<Cmd>BufferGoto 9<CR>", { noremap = true, silent = true, desc = "Goto buffer 9" })
+      vim.keymap.set("n", "<A-0>", "<Cmd>BufferLast<CR>", { noremap = true, silent = true, desc = "Goto last buffer" })
     end,
   },
 
@@ -323,7 +439,26 @@ return {
       require("go").setup({
         goimports = 'gopls',
         gofmt = 'gofumpt',
-        lsp_cfg = true,
+        lsp_cfg = {
+          root_dir = function(fname)
+            local util = require('lspconfig.util')
+            return util.root_pattern("go.mod", ".git")(fname)
+          end,
+          settings = {
+            gopls = {
+              analyses = {
+                unusedparams = true,
+                shadow = true,
+                nilness = true,
+                unusedwrite = true,
+                ST1000 = false,  -- Disable package comment check
+              },
+              staticcheck = false,  -- Disable staticcheck to avoid ST1000 warnings
+              gofumpt = true,
+              experimentalPostfixCompletions = true,
+            }
+          }
+        },
         lsp_gofumpt = true,
         lsp_on_attach = true,
         -- Enhanced diagnostics for better error display

@@ -137,22 +137,34 @@ vim.api.nvim_create_autocmd("BufWritePre", {
   end,
 })
 
--- Auto-close unchanged buffers when opening new files
+-- Auto-close only the previous empty/unchanged buffer when opening new files
 vim.api.nvim_create_autocmd("BufReadPost", {
-  callback = function()
-    -- Get list of all buffers
-    local buffers = vim.api.nvim_list_bufs()
-    for _, buf in ipairs(buffers) do
-      -- Check if buffer is loaded, not modified, not current, and is a normal file
-      if vim.api.nvim_buf_is_loaded(buf)
-         and not vim.api.nvim_buf_get_option(buf, "modified")
-         and buf ~= vim.api.nvim_get_current_buf()
-         and vim.api.nvim_buf_get_option(buf, "buftype") == "" then
-        -- Delete the buffer if it's not displayed in any window
-        local wins = vim.fn.win_findbuf(buf)
-        if #wins == 0 then
-          vim.api.nvim_buf_delete(buf, { force = false })
-        end
+  callback = function(args)
+    local current_buf = args.buf
+
+    -- Get the alternate (previous) buffer
+    local alt_buf = vim.fn.bufnr('#')
+
+    -- Only process if there is a valid alternate buffer
+    if alt_buf > 0 and alt_buf ~= current_buf and vim.api.nvim_buf_is_valid(alt_buf) then
+      local buf_name = vim.api.nvim_buf_get_name(alt_buf)
+      local buf_modified = vim.api.nvim_buf_get_option(alt_buf, "modified")
+      local buf_type = vim.api.nvim_buf_get_option(alt_buf, "buftype")
+      local buf_lines = vim.api.nvim_buf_get_lines(alt_buf, 0, -1, false)
+
+      -- Check if buffer is empty (only one line with no content)
+      local is_empty = #buf_lines == 1 and buf_lines[1] == ""
+
+      -- Close previous buffer only if:
+      -- 1. It's not modified
+      -- 2. It's a normal file (not terminal, help, etc)
+      -- 3. It's empty OR has no name
+      -- 4. It's not displayed in any window
+      if not buf_modified
+         and buf_type == ""
+         and (is_empty or buf_name == "")
+         and #vim.fn.win_findbuf(alt_buf) == 0 then
+        vim.api.nvim_buf_delete(alt_buf, { force = false })
       end
     end
   end,

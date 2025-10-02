@@ -72,19 +72,47 @@ keymap("n", "<C-`>", ":ToggleTerm<CR>", { desc = "Toggle terminal" })
 keymap("n", "<C-s>", ":w<CR>", { desc = "Save file" })
 keymap("i", "<C-s>", "<Esc>:w<CR>a", { desc = "Save file (insert mode)" })
 keymap("n", "<C-q>", ":q<CR>", { desc = "Quit" })
-keymap("n", "<C-w>", ":bdelete<CR>", { desc = "Close buffer" })
+
+-- Smart buffer close: if last buffer, quit instead of creating empty buffer
+keymap("n", "<C-w>", function()
+  local bufs = vim.fn.getbufinfo({buflisted = 1})
+  if #bufs <= 1 then
+    vim.cmd("quit")
+  else
+    vim.cmd("BufferClose")
+  end
+end, { desc = "Close buffer" })
+
+keymap("n", "<C-S-w>", function()
+  local bufs = vim.fn.getbufinfo({buflisted = 1})
+  if #bufs <= 1 then
+    vim.cmd("quit")
+  else
+    vim.cmd("BufferClose")
+  end
+end, { desc = "Close buffer (alternative)" })
 
 -- =============================================================================
 -- BUFFER NAVIGATION (Tab Management)
 -- =============================================================================
-keymap("n", "<Tab>", ":BufferLineCycleNext<CR>", { desc = "Next buffer" })
-keymap("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
-keymap("n", "<leader>bd", ":bdelete<CR>", { desc = "Delete buffer" })
-keymap("n", "<leader>bo", ":BufferLineCloseOthers<CR>", { desc = "Close other buffers" })
+keymap("n", "<Tab>", ":BufferNext<CR>", { desc = "Next buffer" })
+keymap("n", "<S-Tab>", ":BufferPrevious<CR>", { desc = "Previous buffer" })
+
+-- Smart buffer close for leader key too
+keymap("n", "<leader>bd", function()
+  local bufs = vim.fn.getbufinfo({buflisted = 1})
+  if #bufs <= 1 then
+    vim.cmd("quit")
+  else
+    vim.cmd("BufferClose")
+  end
+end, { desc = "Delete buffer" })
+
+keymap("n", "<leader>bo", ":BufferCloseAllButCurrent<CR>", { desc = "Close other buffers" })
 
 -- Go to specific buffer by number (like Chrome/Firefox tabs)
 for i = 1, 9 do
-  keymap("n", "<D-" .. i .. ">", ":BufferLineGoToBuffer " .. i .. "<CR>", { desc = "Go to buffer " .. i })
+  keymap("n", "<D-" .. i .. ">", ":BufferGoto " .. i .. "<CR>", { desc = "Go to buffer " .. i })
 end
 
 -- =============================================================================
