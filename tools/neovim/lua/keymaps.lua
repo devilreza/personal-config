@@ -170,6 +170,9 @@ keymap("n", "<C-S-k>", "dd", { desc = "Delete line" })
 -- NAVIGATION (VSCode-like)
 -- =============================================================================
 keymap("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
+keymap("n", "<leader>gd", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+keymap("n", "gi", vim.lsp.buf.implementation, { desc = "Go to implementation" })
+keymap("n", "gt", vim.lsp.buf.type_definition, { desc = "Go to type definition" })
 keymap("n", "gr", vim.lsp.buf.references, { desc = "Find references" })
 keymap("n", "<C-S-o>", ":Telescope lsp_document_symbols<CR>", { desc = "Go to symbol in file" })
 keymap("n", "<C-t>", ":Telescope lsp_workspace_symbols<CR>", { desc = "Go to symbol in workspace" })
@@ -197,6 +200,11 @@ keymap("v", "<D-S-z>", "<ESC><C-r>", { desc = "Redo (visual mode)" })
 -- =============================================================================
 -- ADDITIONAL HELPFUL SHORTCUTS
 -- =============================================================================
+
+-- Trigger completion manually (like VSCode Ctrl+Space / IntelliJ Cmd+I)
+keymap("i", "<D-i>", function()
+  require('blink.cmp').show()
+end, { desc = "Trigger completion" })
 
 -- Quick escape from insert mode
 keymap("i", "jj", "<Esc>", { desc = "Quick escape" })

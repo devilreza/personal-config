@@ -351,9 +351,9 @@ return {
         no_name_title = "[No Name]",
       })
 
-      -- Tab navigation with Tab key
-      vim.keymap.set("n", "<Tab>", "<Cmd>BufferNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
+      -- Tab navigation with Shift+Tab only (Tab is used for Codeium in insert mode)
       vim.keymap.set("n", "<S-Tab>", "<Cmd>BufferPrevious<CR>", { noremap = true, silent = true, desc = "Previous buffer" })
+      vim.keymap.set("n", "<Tab>", "<Cmd>BufferNext<CR>", { noremap = true, silent = true, desc = "Next buffer" })
 
       -- Additional barbar keymaps
       vim.keymap.set("n", "<A-,>", "<Cmd>BufferPrevious<CR>", { noremap = true, silent = true, desc = "Previous buffer" })
@@ -628,6 +628,33 @@ return {
       function _python_toggle()
         python:toggle()
       end
+    end,
+  },
+
+  -- Codeium AI completion
+  {
+    "Exafunction/codeium.vim",
+    event = "BufEnter",
+    config = function()
+      -- Accept suggestion with Tab
+      vim.keymap.set('i', '<Tab>', function()
+        return vim.fn['codeium#Accept']()
+      end, { expr = true, silent = true })
+
+      -- Cycle to next suggestion with Alt+]
+      vim.keymap.set('i', '<M-]>', function()
+        return vim.fn['codeium#CycleCompletions'](1)
+      end, { expr = true, silent = true })
+
+      -- Cycle to previous suggestion with Alt+[
+      vim.keymap.set('i', '<M-[>', function()
+        return vim.fn['codeium#CycleCompletions'](-1)
+      end, { expr = true, silent = true })
+
+      -- Clear suggestion with Alt+c
+      vim.keymap.set('i', '<M-c>', function()
+        return vim.fn['codeium#Clear']()
+      end, { expr = true, silent = true })
     end,
   },
 

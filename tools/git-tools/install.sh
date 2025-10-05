@@ -82,35 +82,37 @@ else
     print_success "GitHub CLI installed successfully"
 fi
 
-# Install commitizen and git-cz
-print_info "Installing commitizen and git-cz..."
+# Uninstall npm commitizen if it exists
 if command -v git-cz &> /dev/null; then
-    print_success "git-cz is already installed"
-else
-    # Ensure Node.js is available
-    if ! command -v npm &> /dev/null; then
-        print_error "npm is not installed. Please run install-nodejs.sh first"
-        exit 1
-    fi
-    
-    # Install commitizen globally
-    npm install -g commitizen
-    npm install -g cz-conventional-changelog
-    
-    # Configure commitizen
-    echo '{ "path": "cz-conventional-changelog" }' > ~/.czrc
-    
-    print_success "commitizen installed and configured"
+    print_info "Removing npm commitizen..."
+    npm uninstall -g commitizen cz-conventional-changelog 2>/dev/null || true
+    rm -f ~/.czrc
 fi
 
-# Install standard-version
-print_info "Installing standard-version..."
-if command -v standard-version &> /dev/null; then
-    print_success "standard-version is already installed"
+# Install commitizen (Python version with version bumping)
+print_info "Installing commitizen-tools (Python version)..."
+if command -v cz &> /dev/null && cz version | grep -q "commitizen"; then
+    print_success "commitizen-tools is already installed"
 else
-    npm install -g standard-version
-    print_success "standard-version installed successfully"
+    # Ensure Python is available
+    if ! command -v python3 &> /dev/null; then
+        print_error "Python 3 is not installed. Installing via homebrew..."
+        brew install python3
+    fi
+
+    # Install commitizen via pip
+    pip3 install --user commitizen
+
+    print_success "commitizen-tools installed successfully"
 fi
+
+# Configure git cz alias to use commitizen-tools
+print_info "Configuring git cz alias..."
+git config --global alias.cz '!cz commit'
+print_success "git cz configured to use commitizen-tools (same behavior as before)"
+
+# Note: standard-version is replaced by commitizen bump feature
+print_info "Note: commitizen-tools handles version bumping (use 'cz bump' instead of standard-version)"
 
 # Install git extras
 print_info "Installing git-extras..."
