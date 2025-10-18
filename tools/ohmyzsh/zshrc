@@ -21,9 +21,9 @@ export ENABLE_DEPRECATED_GEOSITE=true
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="catppuccin"
-CATPPUCCIN_FLAVOR="frappe" # Required! Options: mocha, flappe, macchiato, latte
-CATPPUCCIN_SHOW_TIME=true  # Optional! If set to true, this will add the current time to the prompt.
+ZSH_THEME="monokai"
+# CATPPUCCIN_FLAVOR="frappe" # Required! Options: mocha, flappe, macchiato, latte
+# CATPPUCCIN_SHOW_TIME=true  # Optional! If set to true, this will add the current time to the prompt.
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
 # a theme from this variable instead of looking in $ZSH/themes/
@@ -100,6 +100,11 @@ plugins=(
 )
 
 source $ZSH/oh-my-zsh.sh
+
+# ZSH syntax highlighting styles (must be set after Oh My Zsh is loaded)
+ZSH_HIGHLIGHT_STYLES[path]=none
+ZSH_HIGHLIGHT_STYLES[path_pathseparator]=fg=black,bold
+ZSH_HIGHLIGHT_STYLES[path_prefix]=none
 
 # User configuration
 

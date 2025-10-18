@@ -198,6 +198,29 @@ else
     print_success ".p10k.zsh symlink created"
 fi
 
+MONOKAI_SOURCE= "$SCRIPT_DIR/z.monokai"
+MONOKAI_TARGET= "$HOME/.z.monokai"
+
+if [ -e "$MONOKAI_TARGET" ] && [ ! -L "$MONOKAI_TARGET" ]; then
+    print_warning "Existing .z.monokai found at $MONOKAI_TARGET"
+    read -p "Do you want to backup and replace it? (y/N) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        mv "$MONOKAI_TARGET" "$MONOKAI_TARGET.backup"
+        print_success "Backed up existing .z.monokai to $MONOKAI_TARGET.backup"
+        ln -sf "$MONOKAI_SOURCE" "$MONOKAI_TARGET"
+        print_success ".z.monokai symlink created"
+    else
+        print_info "Keeping existing .z.monokai"
+    fi
+elif [ -L "$MONOKAI_TARGET" ]; then
+    ln -sf "$MONOKAI_SOURCE" "$MONOKAI_TARGET"
+    print_success ".z.monokai symlink updated"
+else
+    ln -sf "$MONOKAI_SOURCE" "$MONOKAI_TARGET"
+    print_success ".z.monokai symlink created"
+fi
+
 print_footer "Oh My Zsh and plugins installation completed!"
 print_info "Installed components:"
 print_info "  - Oh My Zsh framework"
