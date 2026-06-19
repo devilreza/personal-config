@@ -100,53 +100,127 @@ return {
     end,
   },
 
-  -- Catppuccin Theme
+  -- THEME MANAGER & COLORSCHEMES
   {
-    "catppuccin/nvim",
-    name = "catppuccin",
+    "andrew-george/telescope-themes",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    config = function()
+      require("telescope").load_extension("themes")
+    end,
+  },
+
+  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+  { "folke/tokyonight.nvim", priority = 1000 },
+  { "rose-pine/neovim", name = "rose-pine", priority = 1000 },
+  { "rebelot/kanagawa.nvim", priority = 1000 },
+  { "EdenEast/nightfox.nvim", priority = 1000 },
+  { "shaunsingh/nord.nvim", priority = 1000 },
+  { "ellisonleao/gruvbox.nvim", priority = 1000 },
+  { "sainnhe/everforest", priority = 1000 },
+  { "navarasu/onedark.nvim", priority = 1000 },
+
+  -- Monokai Pro Theme
+  {
+    "loctvl842/monokai-pro.nvim",
     priority = 1000,
     config = function()
-      require("catppuccin").setup({
-        flavour = "frappe", -- latte, frappe, macchiato, mocha
-        background = { -- :h background
-          light = "latte",
-          dark = "mocha",
-        },
+      require("monokai-pro").setup({
         transparent_background = false,
-        show_end_of_buffer = false,
-        term_colors = false,
-        dim_inactive = {
-          enabled = false,
-          shade = "dark",
-          percentage = 0.15,
-        },
-        no_italic = false,
-        no_bold = false,
-        no_underline = false,
+        terminal_colors = true,
+        devicons = true,
         styles = {
-          comments = { "italic" },
-          conditionals = { "italic" },
+          comment = { italic = true },
+          keyword = { italic = true },
+          function_ = { italic = true },
+          variable = {},
         },
-        integrations = {
-          cmp = true,
-          gitsigns = true,
-          nvimtree = true,
-          treesitter = true,
-          telescope = {
-            enabled = true,
+        filter = "pro", -- classic | octagon | pro | machine | ristretto | spectrum
+        -- Enable this will disable filter option
+        day_night = {
+          enable = false,
+          day_filter = "pro",
+          night_filter = "spectrum",
+        },
+        inc_search = "background", -- underline | background
+        background_clear = {
+          -- "float_win",
+          "toggleterm",
+          "telescope",
+          -- "which-key",
+          "renamer",
+          "notify",
+          -- "nvim-tree",
+          -- "neo-tree",
+          -- "bufferline"
+        },
+        plugins = {
+          bufferline = {
+            underline_selected = false,
+            underline_visible = false,
           },
-          lsp_trouble = false,
-          mason = true,
+          indent_blankline = {
+            context_highlight = "default", -- default | pro
+            context_start_underline = false,
+          },
+        },
+        override = function(c)
+          return {}
+        end,
+        ---@param cs Colorscheme
+        on_highlights = function(cs, colors)
+          return {}
+        end,
+      })
+      vim.cmd.colorscheme("monokai-pro")
+    end,
+  },
+
+  -- Minuet AI (LiteLLM / OpenAI-compatible inline autocomplete)
+  {
+    "milanglacier/minuet-ai.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("minuet").setup({
+        provider = "openai_compatible",
+        request_timeout = 4,
+        throttle = 1000,
+        notify = "warn",
+        provider_options = {
+          openai_compatible = {
+            model = "claude-sonnet-4-6",
+            end_point = (vim.env.OPENAI_API_BASE or "https://litellm.phini.dev/v1") .. "/chat/completions",
+            api_key = "OPENAI_API_KEY",
+            stream = true,
+            optional = {
+              max_tokens = 256,
+              top_p = 0.9,
+            },
+          },
         },
       })
-      vim.cmd.colorscheme("catppuccin")
+
+      vim.g.minuet_enabled = true
+
+      local function toggle_minuet()
+        vim.g.minuet_enabled = not vim.g.minuet_enabled
+        local state = vim.g.minuet_enabled and "enabled" or "disabled"
+        vim.notify("Minuet AI autocomplete " .. state, vim.log.levels.INFO)
+      end
+
+      vim.api.nvim_create_user_command("ToggleMinuet", toggle_minuet, { desc = "Toggle Minuet AI autocomplete" })
+      vim.api.nvim_create_user_command("MinuetToggle", toggle_minuet, { desc = "Toggle Minuet AI autocomplete" })
+      vim.api.nvim_create_user_command("ToggelMinuet", toggle_minuet, { desc = "Toggle Minuet AI autocomplete (typo alias)" })
     end,
   },
 
   -- Blink.cmp (Fast autocompletion)
   {
     "saghen/blink.cmp",
-    dependencies = "rafamadriz/friendly-snippets",
+    dependencies = {
+      "rafamadriz/friendly-snippets",
+      "Exafunction/windsurf.nvim", -- Load windsurf before blink.cmp tries to use it
+      "milanglacier/minuet-ai.nvim",
+    },
     version = "*",
     opts = {
       keymap = {
@@ -160,7 +234,37 @@ return {
         nerd_font_variant = "mono",
       },
       sources = {
-        default = { "lsp", "path", "snippets", "buffer" },
+        default = { "lsp", "path", "snippets", "buffer", "codeium", "minuet" },
+        providers = {
+          codeium = {
+            name = "Codeium",
+            module = "codeium.blink",
+            async = true,
+            enabled = function()
+              -- Only enable if codeium is available and initialized
+              local ok, codeium = pcall(require, "codeium")
+              if not ok then
+                return false
+              end
+              -- Check if server is initialized and enabled
+              -- Be more lenient - if server exists, allow it (it might be starting)
+              if codeium.s == nil then
+                return false
+              end
+              -- Return true if server exists (enabled check might be nil during startup)
+              return codeium.s.enabled ~= false
+            end,
+          },
+          minuet = {
+            name = "minuet",
+            module = "minuet.blink",
+            async = true,
+            score_offset = 8,
+            enabled = function()
+              return vim.g.minuet_enabled ~= false
+            end,
+          },
+        },
       },
       completion = {
         accept = {
@@ -201,9 +305,36 @@ return {
     build = ":TSUpdate",
     config = function()
       require("nvim-treesitter.configs").setup({
-        ensure_installed = { "go", "gomod", "gosum", "lua", "json", "yaml", "bash", "dockerfile" },
+        ensure_installed = {
+          "go", "gomod", "gosum",
+          "rust", "toml", "ron",
+          "typescript", "tsx", "javascript", "jsdoc",
+          "html", "css", "scss",
+          "lua", "json", "yaml", "bash", "dockerfile",
+        },
         highlight = { enable = true },
         indent = { enable = true },
+        fold = { 
+          enable = true, -- Enable treesitter-based folding
+        },
+      })
+      
+      -- Setup folding method for buffers with treesitter support
+      -- This ensures folding works even if treesitter doesn't auto-set it
+      vim.api.nvim_create_autocmd({ "BufReadPost", "FileType" }, {
+        group = vim.api.nvim_create_augroup("treesitter_fold_setup", { clear = true }),
+        callback = function()
+          -- Skip for certain file types
+          local ft = vim.bo.filetype
+          if ft == "" or ft == "help" or ft == "man" or ft == "qf" or ft == "terminal" then
+            return
+          end
+          
+          -- Set foldmethod to expr with treesitter foldexpr
+          -- This works when treesitter fold is enabled
+          vim.opt_local.foldmethod = "expr"
+          vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+        end,
       })
     end,
   },
@@ -393,7 +524,7 @@ return {
 
       require("lualine").setup({
         options = {
-          theme = "catppuccin",
+          theme = "monokai-pro",
           component_separators = "",
           section_separators = "",
         },
@@ -460,7 +591,22 @@ return {
           }
         },
         lsp_gofumpt = true,
-        lsp_on_attach = true,
+        lsp_on_attach = function(client, bufnr)
+          -- Use the global on_attach function from lsp-minimal.lua
+          if _G.lsp_on_attach then
+            _G.lsp_on_attach(client, bufnr)
+          else
+            -- Fallback: set up keybindings directly
+            local bufopts = { noremap = true, silent = true, buffer = bufnr }
+            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, vim.tbl_extend('force', bufopts, { desc = 'Go to definition' }))
+            vim.keymap.set('n', '<leader>gd', vim.lsp.buf.declaration, vim.tbl_extend('force', bufopts, { desc = 'Go to declaration' }))
+            vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, vim.tbl_extend('force', bufopts, { desc = 'Go to implementation' }))
+            vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, vim.tbl_extend('force', bufopts, { desc = 'Go to type definition' }))
+            vim.keymap.set('n', 'gr', vim.lsp.buf.references, vim.tbl_extend('force', bufopts, { desc = 'Find references' }))
+            vim.keymap.set('n', 'K', vim.lsp.buf.hover, vim.tbl_extend('force', bufopts, { desc = 'Show documentation' }))
+            vim.keymap.set('n', '<F2>', vim.lsp.buf.rename, vim.tbl_extend('force', bufopts, { desc = 'Rename symbol' }))
+          end
+        end,
         -- Enhanced diagnostics for better error display
         lsp_diag_hdlr = true,
         lsp_diag_underline = true,
@@ -471,6 +617,115 @@ return {
     end,
     event = {"CmdlineEnter"},
     ft = {"go", 'gomod'},
+  },
+
+  -- Rust Development (rustaceanvim manages rust-analyzer LSP, DAP, runnables)
+  {
+    "mrcjkb/rustaceanvim",
+    version = "^6",
+    lazy = false, -- this plugin is already lazy
+    ft = { "rust" },
+    init = function()
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
+      vim.g.rustaceanvim = {
+        server = {
+          capabilities = capabilities,
+          on_attach = function(client, bufnr)
+            if _G.lsp_on_attach then
+              _G.lsp_on_attach(client, bufnr)
+            end
+          end,
+          default_settings = {
+            ["rust-analyzer"] = {
+              cargo = {
+                allFeatures = true,
+                loadOutDirsFromCheck = true,
+                buildScripts = { enable = true },
+              },
+              checkOnSave = true,
+              check = { command = "clippy", extraArgs = { "--no-deps" } },
+              procMacro = { enable = true },
+              inlayHints = {
+                bindingModeHints = { enable = false },
+                chainingHints = { enable = true },
+                closingBraceHints = { enable = true, minLines = 25 },
+                closureReturnTypeHints = { enable = "never" },
+                lifetimeElisionHints = { enable = "never", useParameterNames = false },
+                maxLength = 25,
+                parameterHints = { enable = true },
+                reborrowHints = { enable = "never" },
+                renderColons = true,
+                typeHints = { enable = true, hideClosureInitialization = false, hideNamedConstructor = false },
+              },
+            },
+          },
+        },
+        tools = {
+          float_win_config = { border = "rounded" },
+        },
+      }
+    end,
+  },
+
+  -- Cargo.toml dependency UI (versions, updates, features)
+  {
+    "saecki/crates.nvim",
+    event = { "BufRead Cargo.toml" },
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("crates").setup({
+        completion = {
+          crates = { enabled = true },
+          cmp = { enabled = false },
+        },
+        lsp = {
+          enabled = true,
+          actions = true,
+          completion = true,
+          hover = true,
+        },
+      })
+    end,
+  },
+
+  -- React/JSX: auto-close and auto-rename HTML/JSX/TSX tags
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    config = function()
+      require("nvim-ts-autotag").setup({
+        opts = {
+          enable_close = true,
+          enable_rename = true,
+          enable_close_on_slash = false,
+        },
+      })
+    end,
+  },
+
+  -- Formatter (prettier for JS/TS/JSON/CSS/HTML/MD; stylua for Lua)
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    opts = {
+      formatters_by_ft = {
+        javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+        typescript = { "prettierd", "prettier", stop_after_first = true },
+        typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+        vue = { "prettierd", "prettier", stop_after_first = true },
+        css = { "prettierd", "prettier", stop_after_first = true },
+        scss = { "prettierd", "prettier", stop_after_first = true },
+        html = { "prettierd", "prettier", stop_after_first = true },
+        json = { "prettierd", "prettier", stop_after_first = true },
+        jsonc = { "prettierd", "prettier", stop_after_first = true },
+        yaml = { "prettierd", "prettier", stop_after_first = true },
+        markdown = { "prettierd", "prettier", stop_after_first = true },
+        graphql = { "prettierd", "prettier", stop_after_first = true },
+      },
+    },
   },
 
   -- Auto-pairs for brackets
@@ -536,7 +791,7 @@ return {
     "lewis6991/gitsigns.nvim",
     config = function()
       require('gitsigns').setup({
-        current_line_blame = false,
+        current_line_blame = true,
         current_line_blame_opts = {
           virt_text = true,
           virt_text_pos = 'eol',
@@ -554,6 +809,17 @@ return {
     end,
   },
 
+  -- Git Fugitive (Powerful Git wrapper)
+  {
+    "tpope/vim-fugitive",
+    cmd = { "Git", "G", "Gstatus", "Gwrite", "Gread", "Gdiffsplit", "Gvdiffsplit", "Gedit", "Gsplit", "Gvsplit", "Gtabedit", "Gtabdiffsplit", "Gtabvdiffsplit", "Gmove", "Gdelete", "Gremove", "Ggrep", "Glgrep", "Glog", "Gllog", "Gbrowse", "Gblame", "Gdiff", "Gmerge", "Gpull", "Gpush", "Gfetch", "Gclog", "Gcommit", "Gadd", "Greset", "Gstash", "Gtag", "Gbranch", "Gcheckout", "Grebase", "Gsubmodule" },
+    config = function()
+      -- vim-fugitive doesn't need much configuration
+      -- It works out of the box with standard Git commands
+      -- Note: Commands with hyphens like cherry-pick should be called as :Git cherry-pick
+    end,
+  },
+
   -- Terminal (VSCode-like integrated terminal)
   {
     "akinsho/toggleterm.nvim",
@@ -561,7 +827,7 @@ return {
     config = function()
       require("toggleterm").setup({
         size = 20,
-        open_mapping = [[<c-\>]], -- Ctrl+\ to toggle terminal
+        open_mapping = nil, -- Disable default mapping, use keymaps.lua instead
         hide_numbers = true,
         shade_filetypes = {},
         shade_terminals = true,
@@ -569,7 +835,7 @@ return {
         start_in_insert = true,
         insert_mappings = true,
         persist_size = true,
-        direction = "float", -- 'vertical' | 'horizontal' | 'tab' | 'float'
+        direction = "horizontal", -- 'vertical' | 'horizontal' | 'tab' | 'float'
         close_on_exit = true,
         shell = vim.o.shell,
         float_opts = {
@@ -616,6 +882,25 @@ return {
         direction = "float",
       })
 
+      -- Main floating terminal (default terminal for Ctrl+`)
+      local float_term = Terminal:new({
+        direction = "float",
+        float_opts = {
+          border = "curved",
+          winblend = 3,
+          highlights = {
+            border = "Normal",
+            background = "Normal",
+          },
+        },
+        on_open = function(term)
+          vim.cmd("startinsert!")
+        end,
+        on_close = function(term)
+          vim.cmd("startinsert!")
+        end,
+      })
+
       -- Terminal keymaps
       function _lazygit_toggle()
         lazygit:toggle()
@@ -628,33 +913,65 @@ return {
       function _python_toggle()
         python:toggle()
       end
+
+      function _float_term_toggle()
+        float_term:toggle()
+      end
     end,
   },
 
-  -- Codeium AI completion
+  -- Windsurf AI completion
+  -- Repository: https://github.com/Exafunction/windsurf.nvim
+  -- Note: Uses 'codeium' module name internally
   {
-    "Exafunction/codeium.vim",
-    event = "BufEnter",
+    "Exafunction/windsurf.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+    },
+    event = "VeryLazy", -- Load early to ensure codeium.blink is available
+    priority = 1000, -- High priority to load before blink.cmp
     config = function()
-      -- Accept suggestion with Tab
-      vim.keymap.set('i', '<Tab>', function()
-        return vim.fn['codeium#Accept']()
-      end, { expr = true, silent = true })
-
-      -- Cycle to next suggestion with Alt+]
-      vim.keymap.set('i', '<M-]>', function()
-        return vim.fn['codeium#CycleCompletions'](1)
-      end, { expr = true, silent = true })
-
-      -- Cycle to previous suggestion with Alt+[
-      vim.keymap.set('i', '<M-[>', function()
-        return vim.fn['codeium#CycleCompletions'](-1)
-      end, { expr = true, silent = true })
-
-      -- Clear suggestion with Alt+c
-      vim.keymap.set('i', '<M-c>', function()
-        return vim.fn['codeium#Clear']()
-      end, { expr = true, silent = true })
+      require("codeium").setup({
+        -- Tab to accept completion (handled by blink.cmp)
+        -- Authentication: Run :Codeium Auth in Neovim
+        enable_cmp_source = false, -- Disable nvim-cmp source since we're using blink.cmp
+        -- Virtual text: Show inline suggestions like Copilot/Cursor
+        virtual_text = {
+          enabled = true, -- Enable inline suggestions
+          filetypes = {}, -- Empty means enable for all filetypes
+          default_filetype_enabled = true, -- Enable by default for all filetypes
+          manual = false, -- Auto-trigger suggestions (set to true to only show on manual trigger)
+          idle_delay = 75, -- Wait 75ms after typing stops before showing suggestions
+          virtual_text_priority = 65535, -- High priority to show above other virtual text
+          map_keys = false, -- Disable automatic key mapping (we handle Tab manually in keymaps.lua)
+          accept_fallback = "<C-t>", -- Fallback to indent when no suggestion (handled in keymaps.lua)
+          key_bindings = {
+            accept = "<Tab>", -- Accept suggestion with Tab (handled manually)
+            accept_word = false, -- Set to keybinding to accept only next word
+            accept_line = false, -- Set to keybinding to accept only next line
+            clear = false, -- Set to keybinding to clear suggestion
+            next = "<M-]>", -- Cycle to next suggestion (Alt+])
+            prev = "<M-[>", -- Cycle to previous suggestion (Alt+[)
+          },
+        },
+      })
+      
+      -- Debug: Check if codeium is working
+      vim.api.nvim_create_user_command("CodeiumStatus", function()
+        local ok, codeium = pcall(require, "codeium")
+        if not ok then
+          vim.notify("Codeium module not found", vim.log.levels.ERROR)
+          return
+        end
+        
+        if codeium.s == nil then
+          vim.notify("Codeium server not initialized", vim.log.levels.WARN)
+          return
+        end
+        
+        local status = codeium.s.enabled and "enabled" or "disabled"
+        vim.notify("Codeium status: " .. status, vim.log.levels.INFO)
+      end, { desc = "Check Codeium status" })
     end,
   },
 

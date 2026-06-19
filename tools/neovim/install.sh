@@ -87,6 +87,58 @@ else
     print_info "golangci-lint is already installed"
 fi
 
+# Install Rust toolchain (rustup, cargo, rustfmt, clippy, rust-analyzer)
+print_info "Installing Rust toolchain..."
+if command -v rustup &> /dev/null; then
+    print_success "rustup is already installed: $(rustup --version 2>/dev/null | head -n1)"
+else
+    print_info "Installing rustup via official installer (non-interactive)..."
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile default
+    print_success "rustup installed"
+fi
+
+# Load cargo env for the rest of this script
+if [ -f "$HOME/.cargo/env" ]; then
+    # shellcheck disable=SC1091
+    source "$HOME/.cargo/env"
+fi
+
+if command -v rustup &> /dev/null; then
+    print_info "Adding rust-analyzer, rustfmt, clippy components..."
+    rustup component add rust-analyzer rustfmt clippy
+    print_success "Rust components installed (rust-analyzer, rustfmt, clippy)"
+else
+    print_warning "rustup not on PATH after install — open a new shell and re-run if rust-analyzer is missing"
+fi
+
+# Install Node.js + JS toolchain (for React/TypeScript LSPs and prettier)
+print_info "Installing Node.js toolchain..."
+if command -v node &> /dev/null; then
+    print_success "Node is already installed: $(node --version)"
+else
+    brew install node
+    print_success "Node installed"
+fi
+
+# pnpm: optional but commonly used in React projects
+if ! command -v pnpm &> /dev/null; then
+    brew install pnpm || npm install -g pnpm
+    print_success "pnpm installed"
+else
+    print_info "pnpm is already installed"
+fi
+
+# prettier + prettierd (daemon) for fast formatting via conform.nvim.
+# Mason installs language servers (ts_ls, eslint, tailwindcss, etc.) on first
+# Neovim launch — prettier itself is a CLI tool so we install it globally here.
+if command -v npm &> /dev/null; then
+    print_info "Installing prettier and prettierd globally..."
+    npm install -g prettier @fsouza/prettierd
+    print_success "prettier + prettierd installed"
+else
+    print_warning "npm not on PATH — install prettier manually with: npm i -g prettier @fsouza/prettierd"
+fi
+
 # Install additional development tools
 print_info "Installing additional development tools..."
 
@@ -236,8 +288,10 @@ print_info "  - Neovim (modern Vim fork)"
 print_info "  - Go development tools (gopls, goimports, godef, etc.)"
 print_info "  - Go debugging tools (dlv, air)"
 print_info "  - Code analysis tools (staticcheck, golangci-lint)"
+print_info "  - Rust toolchain (rustup, cargo, rustc, rust-analyzer, rustfmt, clippy)"
+print_info "  - Node.js toolchain (node, npm, pnpm, prettier, prettierd)"
 print_info "  - Modern CLI tools (ripgrep, fd, fzf, bat)"
-print_info "  - Neovim configuration optimized for Go development"
+print_info "  - Neovim configuration optimized for Go, Rust, and React/TypeScript"
 print_info ""
 print_info "Configuration features:"
 print_info "  - Modern Lua-based configuration"

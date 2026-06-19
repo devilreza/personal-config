@@ -78,12 +78,16 @@ else
 fi
 
 # Install Zed IDE
-print_info "Installing Zed IDE..."
-if [ -d "/Applications/Zed.app" ]; then
-    print_success "Zed is already installed"
+print_info "Installing Zed IDE and configuration..."
+if [ -f "$ROOT_DIR/tools/zed/install.sh" ]; then
+    bash "$ROOT_DIR/tools/zed/install.sh"
 else
-    brew install --cask zed
-    print_success "Zed IDE installed successfully"
+    if [ -d "/Applications/Zed.app" ]; then
+        print_success "Zed is already installed"
+    else
+        brew install --cask zed
+        print_success "Zed IDE installed successfully"
+    fi
 fi
 
 # Install doctl (DigitalOcean CLI)

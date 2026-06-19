@@ -1,0 +1,63 @@
+{
+  "cli_default_open_behavior": "new_window",
+  "agent_servers": {
+    "claude-acp": {
+      "type": "registry"
+    },
+    "gemini": {
+      "type": "registry"
+    }
+  },
+  "project_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "left"
+  },
+  "collaboration_panel": {
+    "dock": "left"
+  },
+  "agent": {
+    "dock": "right",
+    "favorite_models": [],
+    "model_parameters": []
+  },
+  "git_panel": {
+    "dock": "left"
+  },
+  "icon_theme": "Colored Zed Icons Theme Dark",
+  "vim_mode": true,
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+  "auto_indent": "syntax_aware",
+  "auto_indent_on_paste": true,
+  "autosave": "on_focus_change",
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "Monokai Pro (CE)"
+  },
+  "language_models": {
+    "anthropic": {
+      "version": "1"
+    },
+    "openai": {
+      "api_url": "https://litellm.phini.dev/v1",
+      "available_models": [
+        {
+          "name": "claude-sonnet-4-6",
+          "max_tokens": 200000
+        }
+      ]
+    }
+  },
+  "inline_completions_re_enable_threshold": 5,
+  "inline_completion_provider": "openai",
+  "assistant": {
+    "default_model": {
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-latest"
+    },
+    "version": "2"
+  }
+}

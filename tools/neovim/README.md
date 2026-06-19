@@ -60,11 +60,14 @@ This will install:
 | `<leader>` | Space (leader key) |
 | `<C-s>` | Save file |
 | `<C-q>` | Quit |
-| `<leader>e` | Toggle file explorer |
-| `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>fb` | Find buffers |
-| `<leader>tt` | Toggle terminal |
+| `<C-b>` | Toggle file explorer |
+| `<C-p>` | Find files |
+| `<A-f>` | Search in file (Alt+F) |
+| `<C-S-f>` | Live grep (Search in project) |
+| `<C-\>` | Toggle terminal |
+| `<leader>ts`| Switch Themes (Theme Manager) |
+| `<leader>mt`| Toggle Minuet AI |
+| `<leader>ct`| Toggle Codeium AI |
 
 ### Go Development
 | Key | Action |

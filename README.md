@@ -23,7 +23,8 @@ This repository contains my personal configuration files and installation script
     ├── ohmyzsh/           # Zsh and Oh My Zsh
     ├── python/            # Python with pyenv
     ├── tmux/              # Terminal multiplexer
-    └── vim/               # Vim editor
+    ├── vim/               # Vim editor
+    └── zed/               # Zed IDE configuration
 ```
 
 Each tool directory contains:

@@ -20,6 +20,13 @@ vim.opt.wrap = false            -- Don't wrap lines
 vim.opt.cursorline = true       -- Highlight current line
 vim.opt.termguicolors = true    -- Enable 24-bit RGB colors
 
+-- Code Folding (VSCode-like collapse/expand)
+-- Will be set up after treesitter loads (see autocmd below)
+vim.opt.foldenable = true       -- Enable folding
+vim.opt.foldlevel = 99          -- Start with all folds open (0 = all closed)
+vim.opt.foldnestmax = 3         -- Maximum nested fold level
+vim.opt.foldcolumn = "1"        -- Show fold column (like VSCode arrow indicators)
+
 -- Indentation (VSCode defaults)
 vim.opt.tabstop = 4             -- 4 spaces for tabs
 vim.opt.shiftwidth = 4          -- 4 spaces for indentation
@@ -133,6 +140,32 @@ vim.api.nvim_create_autocmd("BufWritePre", {
           vim.lsp.util.apply_workspace_edit(r.edit, "utf-8")
         end
       end
+    end
+  end,
+})
+
+-- Auto format Rust files on save (rustfmt via rust-analyzer)
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.rs",
+  callback = function()
+    vim.lsp.buf.format({ async = false })
+  end,
+})
+
+-- Auto format JS/TS/React/CSS/HTML/JSON/MD on save via prettier (conform.nvim).
+-- ESLint's "fix all" runs in a separate BufWritePre installed by the ESLint LSP
+-- on_attach — the two complement each other (prettier = style, eslint = rules).
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = {
+    "*.js", "*.jsx", "*.ts", "*.tsx", "*.vue",
+    "*.css", "*.scss", "*.html",
+    "*.json", "*.jsonc", "*.yaml", "*.yml",
+    "*.md", "*.graphql",
+  },
+  callback = function(args)
+    local ok, conform = pcall(require, "conform")
+    if ok then
+      conform.format({ bufnr = args.buf, async = false, lsp_fallback = true })
     end
   end,
 })
