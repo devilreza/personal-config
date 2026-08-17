@@ -86,14 +86,15 @@ mason_lspconfig.setup({
     "emmet_language_server",  -- Emmet for HTML/JSX
     "jsonls",                 -- JSON + schema-aware
   },
-  automatic_installation = true,
+  -- mason-lspconfig v2 auto-enables every installed server via vim.lsp.enable().
+  -- We configure each server explicitly below with vim.lsp.config() and enable them
+  -- ourselves at the bottom of this file. rust_analyzer is intentionally owned by
+  -- rustaceanvim — so we turn automatic_enable off and stay authoritative.
+  automatic_enable = false,
 })
 
 -- Get blink.cmp capabilities
 local capabilities = require('blink.cmp').get_lsp_capabilities()
-
--- Setup lspconfig
-local lspconfig = require('lspconfig')
 
 -- Common on_attach function for LSP clients
 local on_attach = function(client, bufnr)
@@ -178,11 +179,11 @@ end
 -- Configure gopls with dynamic staticcheck support
 -- Note: go.nvim plugin also sets up gopls, so this might be redundant
 -- But we keep it for non-Go files or if go.nvim is disabled
-lspconfig.gopls.setup({
+vim.lsp.config('gopls', {
   capabilities = capabilities,
-  root_dir = function(fname)
-    local util = require('lspconfig.util')
-    return util.root_pattern("go.mod", ".git")(fname) or vim.fn.getcwd()
+  root_dir = function(bufnr, on_dir)
+    local fname = vim.api.nvim_buf_get_name(bufnr)
+    on_dir(vim.fs.root(fname, { "go.mod", ".git" }) or vim.fn.getcwd())
   end,
   handlers = {
     ["textDocument/publishDiagnostics"] = function(err, result, ctx, config)
@@ -204,7 +205,7 @@ lspconfig.gopls.setup({
     on_attach(client, bufnr)
     
     -- Check for staticcheck.conf in the LSP root directory
-    local root_dir = client.config.root_dir
+    local root_dir = client.root_dir or client.config.root_dir
     local config_path = get_staticcheck_config_path(root_dir)
 
     if config_path then
@@ -244,7 +245,7 @@ lspconfig.gopls.setup({
 _G.lsp_on_attach = on_attach
 
 -- Configure lua_ls
-lspconfig.lua_ls.setup({
+vim.lsp.config('lua_ls', {
   capabilities = capabilities,
   on_attach = on_attach,
   settings = {
@@ -264,7 +265,7 @@ lspconfig.lua_ls.setup({
 -- TypeScript / JavaScript / JSX / TSX
 -- Formatting is handled by conform.nvim (prettier), so we disable ts_ls's own
 -- formatter to avoid double-formatting and prettier-vs-tsserver conflicts.
-lspconfig.ts_ls.setup({
+vim.lsp.config('ts_ls', {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = false
@@ -285,7 +286,7 @@ lspconfig.ts_ls.setup({
 })
 
 -- ESLint LSP: provides diagnostics and an "EslintFixAll" command + code action
-lspconfig.eslint.setup({
+vim.lsp.config('eslint', {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     on_attach(client, bufnr)
@@ -301,7 +302,7 @@ lspconfig.eslint.setup({
 })
 
 -- Tailwind CSS IntelliSense
-lspconfig.tailwindcss.setup({
+vim.lsp.config('tailwindcss', {
   capabilities = capabilities,
   on_attach = on_attach,
   filetypes = {
@@ -313,7 +314,7 @@ lspconfig.tailwindcss.setup({
 })
 
 -- CSS / SCSS / Less
-lspconfig.cssls.setup({
+vim.lsp.config('cssls', {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = false
@@ -322,7 +323,7 @@ lspconfig.cssls.setup({
 })
 
 -- HTML
-lspconfig.html.setup({
+vim.lsp.config('html', {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = false
@@ -331,7 +332,7 @@ lspconfig.html.setup({
 })
 
 -- Emmet (HTML / JSX abbreviation expansion)
-lspconfig.emmet_language_server.setup({
+vim.lsp.config('emmet_language_server', {
   capabilities = capabilities,
   on_attach = on_attach,
   filetypes = {
@@ -342,7 +343,7 @@ lspconfig.emmet_language_server.setup({
 })
 
 -- JSON with schema support (package.json, tsconfig.json, etc.)
-lspconfig.jsonls.setup({
+vim.lsp.config('jsonls', {
   capabilities = capabilities,
   on_attach = function(client, bufnr)
     client.server_capabilities.documentFormattingProvider = false
@@ -353,4 +354,11 @@ lspconfig.jsonls.setup({
       validate = { enable = true },
     },
   },
+})
+
+-- Enable all configured servers (replaces the old lspconfig framework auto-setup).
+-- rust_analyzer is intentionally omitted — rustaceanvim owns it.
+vim.lsp.enable({
+  "gopls", "lua_ls", "ts_ls", "eslint", "tailwindcss",
+  "cssls", "html", "emmet_language_server", "jsonls",
 })

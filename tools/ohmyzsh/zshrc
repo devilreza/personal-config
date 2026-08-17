@@ -111,3 +111,6 @@ export PATH="$PATH:/Users/alireza/.lmstudio/bin"
 # End of LM Studio CLI section
 
 source ~/.env
+
+# opencode
+export PATH=/Users/wallex/.opencode/bin:$PATH

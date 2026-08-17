@@ -2,7 +2,7 @@
 -- VSCode-like experience for beginners
 -- Focus: Error highlighting, essential features only
 
-return {
+local plugins = {
   -- =============================================================================
   -- ESSENTIAL PLUGINS ONLY
   -- =============================================================================
@@ -112,12 +112,18 @@ return {
   { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
   { "folke/tokyonight.nvim", priority = 1000 },
   { "rose-pine/neovim", name = "rose-pine", priority = 1000 },
-  { "rebelot/kanagawa.nvim", priority = 1000 },
+  {
+    "rebelot/kanagawa.nvim",
+    priority = 1000,
+    config = function()
+      require("kanagawa").setup({})
+    end,
+  },
   { "EdenEast/nightfox.nvim", priority = 1000 },
   { "shaunsingh/nord.nvim", priority = 1000 },
   { "ellisonleao/gruvbox.nvim", priority = 1000 },
   { "sainnhe/everforest", priority = 1000 },
-  { "navarasu/onedark.nvim", priority = 1000 },
+  { "olimorris/onedarkpro.nvim", priority = 1000 },
 
   -- Monokai Pro Theme
   {
@@ -171,7 +177,6 @@ return {
           return {}
         end,
       })
-      vim.cmd.colorscheme("monokai-pro")
     end,
   },
 
@@ -180,16 +185,45 @@ return {
     "milanglacier/minuet-ai.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
+      -- Load ~/.env so OPENAI_API_KEY / OPENAI_API_BASE reach nvim regardless of how
+      -- it was launched (GUI launcher, or a shell that didn't export the vars).
+      -- This is what fixes the "attempt to concatenate a nil value" key error.
+      local function load_dotenv(path)
+        local f = io.open(path, "r")
+        if not f then return end
+        for line in f:lines() do
+          if not line:match("^%s*#") then
+            local key, value = line:match("^%s*export%s+([%w_]+)%s*=%s*(.+)%s*$")
+            if not key then
+              key, value = line:match("^%s*([%w_]+)%s*=%s*(.+)%s*$")
+            end
+            if key and value then
+              value = value:gsub('^"(.*)"$', "%1"):gsub("^'(.*)'$", "%1")
+              if vim.env[key] == nil or vim.env[key] == "" then
+                vim.env[key] = value
+              end
+            end
+          end
+        end
+        f:close()
+      end
+      load_dotenv(vim.fn.expand("~/.env"))
+
+      local has_key = type(vim.env.OPENAI_API_KEY) == "string" and vim.env.OPENAI_API_KEY ~= ""
+      if not has_key then
+        vim.notify("Minuet: OPENAI_API_KEY missing (env or ~/.env); AI autocomplete disabled", vim.log.levels.WARN)
+      end
+
       require("minuet").setup({
         provider = "openai_compatible",
         request_timeout = 4,
-        throttle = 1000,
+        throttle = 1000, -- ms throttle between requests while typing
         notify = "warn",
         provider_options = {
           openai_compatible = {
-            model = "claude-sonnet-4-6",
+            model = "claude-haiku-4-5", -- fast/cheap via litellm, good for completion
             end_point = (vim.env.OPENAI_API_BASE or "https://litellm.phini.dev/v1") .. "/chat/completions",
-            api_key = "OPENAI_API_KEY",
+            api_key = "OPENAI_API_KEY", -- name of the env var minuet reads
             stream = true,
             optional = {
               max_tokens = 256,
@@ -199,17 +233,16 @@ return {
         },
       })
 
-      vim.g.minuet_enabled = true
+      -- Only let blink query minuet when a key is actually present, so a missing
+      -- key never reaches the backend.
+      vim.g.minuet_enabled = has_key
 
       local function toggle_minuet()
         vim.g.minuet_enabled = not vim.g.minuet_enabled
         local state = vim.g.minuet_enabled and "enabled" or "disabled"
         vim.notify("Minuet AI autocomplete " .. state, vim.log.levels.INFO)
       end
-
-      vim.api.nvim_create_user_command("ToggleMinuet", toggle_minuet, { desc = "Toggle Minuet AI autocomplete" })
       vim.api.nvim_create_user_command("MinuetToggle", toggle_minuet, { desc = "Toggle Minuet AI autocomplete" })
-      vim.api.nvim_create_user_command("ToggelMinuet", toggle_minuet, { desc = "Toggle Minuet AI autocomplete (typo alias)" })
     end,
   },
 
@@ -236,6 +269,15 @@ return {
       sources = {
         default = { "lsp", "path", "snippets", "buffer", "codeium", "minuet" },
         providers = {
+          minuet = {
+            name = "minuet",
+            module = "minuet.blink",
+            async = true,
+            score_offset = 8, -- rank AI completions above buffer/snippets
+            enabled = function()
+              return vim.g.minuet_enabled ~= false
+            end,
+          },
           codeium = {
             name = "Codeium",
             module = "codeium.blink",
@@ -253,15 +295,6 @@ return {
               end
               -- Return true if server exists (enabled check might be nil during startup)
               return codeium.s.enabled ~= false
-            end,
-          },
-          minuet = {
-            name = "minuet",
-            module = "minuet.blink",
-            async = true,
-            score_offset = 8,
-            enabled = function()
-              return vim.g.minuet_enabled ~= false
             end,
           },
         },
@@ -311,6 +344,7 @@ return {
           "typescript", "tsx", "javascript", "jsdoc",
           "html", "css", "scss",
           "lua", "json", "yaml", "bash", "dockerfile",
+          "proto", "comment",
         },
         highlight = { enable = true },
         indent = { enable = true },
@@ -524,7 +558,7 @@ return {
 
       require("lualine").setup({
         options = {
-          theme = "monokai-pro",
+          theme = "auto",
           component_separators = "",
           section_separators = "",
         },
@@ -570,26 +604,11 @@ return {
       require("go").setup({
         goimports = 'gopls',
         gofmt = 'gofumpt',
-        lsp_cfg = {
-          root_dir = function(fname)
-            local util = require('lspconfig.util')
-            return util.root_pattern("go.mod", ".git")(fname)
-          end,
-          settings = {
-            gopls = {
-              analyses = {
-                unusedparams = true,
-                shadow = true,
-                nilness = true,
-                unusedwrite = true,
-                ST1000 = false,  -- Disable package comment check
-              },
-              staticcheck = false,  -- Disable staticcheck to avoid ST1000 warnings
-              gofumpt = true,
-              experimentalPostfixCompletions = true,
-            }
-          }
-        },
+        -- gopls is owned entirely by lsp-minimal.lua (vim.lsp.config('gopls')).
+        -- Setting lsp_cfg = false stops go.nvim from also configuring/starting
+        -- gopls via the deprecated lspconfig framework, which under nvim 0.12
+        -- errored ("root_dir is not function") and prevented gopls from attaching.
+        lsp_cfg = false,
         lsp_gofumpt = true,
         lsp_on_attach = function(client, bufnr)
           -- Use the global on_attach function from lsp-minimal.lua
@@ -980,9 +999,9 @@ return {
     "iamcco/markdown-preview.nvim",
     cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
     ft = { "markdown" },
-    build = function()
-      vim.fn["mkdp#util#install"]()
-    end,
+    -- Build the bundled node app directly. Avoids the lazy.nvim race where
+    -- mkdp#util#install runs before the plugin's autoload is sourced (E117).
+    build = "cd app && yarn install",
     config = function()
       vim.g.mkdp_auto_start = 0
       vim.g.mkdp_auto_close = 1
@@ -1020,3 +1039,10 @@ return {
   },
 
 }
+
+-- Colorscheme plugins added via :ThemeInstall (see lua/theme-list.lua)
+for _, repo in ipairs(require("theme-list")) do
+  table.insert(plugins, { repo, priority = 1000 })
+end
+
+return plugins

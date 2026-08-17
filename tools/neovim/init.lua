@@ -9,6 +9,41 @@ vim.g.mapleader = " "         -- Space as leader key (like VSCode Ctrl+Shift+P)
 vim.g.maplocalleader = "\\"   -- Backslash as local leader
 
 -- =============================================================================
+-- Treesitter compat shim (Neovim 0.12+ vs nvim-treesitter master)
+-- -----------------------------------------------------------------------------
+-- Neovim's query directive API now passes capture values as a *list* of nodes
+-- (table<integer, TSNode[]>). Some nvim-treesitter directive handlers
+-- (e.g. "set-lang-from-info-string!" in query_predicates.lua) still treat the
+-- capture as a single node and hand the whole list to get_node_text/get_range.
+-- A list is a Lua table with no :range method, so node:range() throws:
+--   .../runtime/lua/vim/treesitter.lua:197: attempt to call method 'range'
+-- This flashed when blink.cmp highlighted markdown completion docs.
+--
+-- A real TSNode is userdata, never a table, so normalizing "table -> node[1]"
+-- only ever rewrites the broken list case and is a no-op for valid calls.
+-- Remove once nvim-treesitter ships handlers compatible with this Neovim.
+-- =============================================================================
+do
+  local ts = vim.treesitter
+  local function first_node(node)
+    if type(node) == "table" then
+      return node[1]
+    end
+    return node
+  end
+
+  local orig_get_range = ts.get_range
+  ts.get_range = function(node, src, meta)
+    return orig_get_range(first_node(node), src, meta)
+  end
+
+  local orig_get_node_text = ts.get_node_text
+  ts.get_node_text = function(node, source, opts)
+    return orig_get_node_text(first_node(node), source, opts)
+  end
+end
+
+-- =============================================================================
 -- BASIC VIM OPTIONS (VSCode-like behavior)
 -- =============================================================================
 
@@ -100,6 +135,82 @@ vim.opt.rtp:prepend(lazypath)
 -- LOAD PLUGINS
 -- =============================================================================
 require("lazy").setup("plugins")
+
+-- =============================================================================
+-- APPLY SAVED THEME (written by Theme Manager <leader>ts to lua/current-theme.lua)
+-- =============================================================================
+if not pcall(require, "current-theme") then
+  vim.cmd("colorscheme kanagawa")
+end
+
+-- =============================================================================
+-- THEME INSTALLER (:ThemeInstall owner/repo, :ThemeUninstall owner/repo)
+-- =============================================================================
+local theme_list_path = vim.fn.stdpath("config") .. "/lua/theme-list.lua"
+
+local write_theme_list = function(list)
+  local file = assert(io.open(theme_list_path, "w"))
+  file:write('-- Colorscheme plugins added via :ThemeInstall — one "owner/repo" per line.\n')
+  file:write("-- Remove a line and restart Neovim to uninstall a theme.\n")
+  file:write("return {\n")
+  for _, repo in ipairs(list) do
+    file:write('  "' .. repo .. '",\n')
+  end
+  file:write("}\n")
+  file:close()
+end
+
+vim.api.nvim_create_user_command("ThemeInstall", function(opts)
+  local repo = vim.trim(opts.args)
+  if not repo:match("^[%w%-%._]+/[%w%-%._]+$") then
+    vim.notify("Usage: :ThemeInstall owner/repo (e.g. sainnhe/sonokai)", vim.log.levels.ERROR)
+    return
+  end
+  local list = require("theme-list")
+  if vim.tbl_contains(list, repo) then
+    vim.notify(repo .. " is already in the theme list", vim.log.levels.WARN)
+    return
+  end
+  table.insert(list, repo)
+  write_theme_list(list)
+  vim.notify("Added " .. repo .. " — restart Neovim to install it, then pick it with <leader>ts", vim.log.levels.INFO)
+end, { nargs = 1, desc = "Install a colorscheme plugin from GitHub (owner/repo)" })
+
+vim.api.nvim_create_user_command("ThemeUninstall", function(opts)
+  local repo = vim.trim(opts.args)
+  local list = require("theme-list")
+  for i, r in ipairs(list) do
+    if r == repo then
+      table.remove(list, i)
+      write_theme_list(list)
+      vim.notify("Removed " .. repo .. " — restart Neovim to apply", vim.log.levels.INFO)
+      return
+    end
+  end
+  vim.notify(repo .. " is not in the theme list (only :ThemeInstall-ed themes can be removed)", vim.log.levels.WARN)
+end, {
+  nargs = 1,
+  desc = "Uninstall a :ThemeInstall-ed colorscheme plugin",
+  complete = function()
+    return require("theme-list")
+  end,
+})
+
+-- Persist whatever theme is active: any colorscheme change (theme manager,
+-- :colorscheme, etc.) is written to lua/current-theme.lua and restored on startup
+vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("persist-theme", { clear = true }),
+  callback = function()
+    local name = vim.g.colors_name
+    if name and name ~= "" then
+      local file = io.open(vim.fn.stdpath("config") .. "/lua/current-theme.lua", "w")
+      if file then
+        file:write('vim.cmd("colorscheme ' .. name .. '")\n')
+        file:close()
+      end
+    end
+  end,
+})
 
 -- =============================================================================
 -- LOAD KEYMAPS
