@@ -10,5 +10,14 @@
   },
   "formatter": true,
   "lsp": true,
-  "plugin": ["@mohak34/opencode-notifier@latest", "openslimedit@latest"]
+  "plugin": [
+    "@mohak34/opencode-notifier@latest",
+    "openslimedit@latest"
+  ],
+  "mcp": {
+    "gitlab": {
+      "type": "remote",
+      "url": "https://codespace.phini.dev/api/v4/mcp"
+    }
+  }
 }

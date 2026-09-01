@@ -18,7 +18,7 @@ local plugins = {
   {
     "nvimdev/dashboard-nvim",
     event = "VimEnter",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-mini/mini.icons" },
     config = function()
       require("dashboard").setup({
         theme = "doom",
@@ -185,9 +185,10 @@ local plugins = {
     "milanglacier/minuet-ai.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
-      -- Load ~/.env so OPENAI_API_KEY / OPENAI_API_BASE reach nvim regardless of how
-      -- it was launched (GUI launcher, or a shell that didn't export the vars).
-      -- This is what fixes the "attempt to concatenate a nil value" key error.
+      -- Load nvim-scoped credentials (~/.config/nvim/.env), falling back to ~/.env,
+      -- so OPENAI_API_KEY / OPENAI_API_BASE reach nvim without a global shell export.
+      -- Keeping them out of ~/.zshenv stops them leaking into opencode, whose OpenAI
+      -- provider is reserved for the ChatGPT subscription (OAuth).
       local function load_dotenv(path)
         local f = io.open(path, "r")
         if not f then return end
@@ -207,6 +208,7 @@ local plugins = {
         end
         f:close()
       end
+      load_dotenv(vim.fn.expand("~/.config/nvim/.env"))
       load_dotenv(vim.fn.expand("~/.env"))
 
       local has_key = type(vim.env.OPENAI_API_KEY) == "string" and vim.env.OPENAI_API_KEY ~= ""
@@ -376,7 +378,7 @@ local plugins = {
   -- File Explorer (VSCode-like sidebar)
   {
     "nvim-tree/nvim-tree.lua",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-mini/mini.icons" },
     config = function()
       require("nvim-tree").setup({
         view = {
@@ -397,6 +399,12 @@ local plugins = {
             glyphs = {
               default = "",
               symlink = "",
+              folder = {
+                default = "󰉋",
+                open = "󰉋",
+                empty = "󰉋",
+                empty_open = "󰉋",
+              },
               git = {
                 unstaged = "✗",
                 staged = "✓",
@@ -447,8 +455,12 @@ local plugins = {
 
   -- File Icons
   {
-    "nvim-tree/nvim-web-devicons",
-    config = true,
+    "nvim-mini/mini.icons",
+    version = false,
+    config = function()
+      require("mini.icons").setup()
+      require("mini.icons").mock_nvim_web_devicons()
+    end,
   },
 
   -- Buffer/Tab Line (Shows open buffers at the top)
@@ -456,7 +468,7 @@ local plugins = {
     "romgrk/barbar.nvim",
     dependencies = {
       "lewis6991/gitsigns.nvim",
-      "nvim-tree/nvim-web-devicons",
+      "nvim-mini/mini.icons",
     },
     init = function()
       vim.g.barbar_auto_setup = false
@@ -545,7 +557,7 @@ local plugins = {
   -- Status Line (VSCode-like bottom bar) with RTL indicator
   {
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = { "nvim-mini/mini.icons" },
     config = function()
       -- Custom RTL status component
       local function rtl_status()

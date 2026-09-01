@@ -33,16 +33,16 @@ if command -v delta &> /dev/null; then
 else
     brew install git-delta
     print_success "delta installed successfully"
-    
-    # Configure git to use delta
-    git config --global core.pager delta
-    git config --global interactive.diffFilter "delta --color-only"
-    git config --global delta.navigate true
-    git config --global delta.light false
-    git config --global delta.side-by-side true
-    git config --global delta.line-numbers true
-    print_success "delta configured as git pager"
 fi
+
+# Configure git even when delta was installed before this script runs.
+git config --global core.pager delta
+git config --global interactive.diffFilter "delta --color-only"
+git config --global delta.navigate true
+git config --global delta.light false
+git config --global delta.side-by-side true
+git config --global delta.line-numbers true
+print_success "delta configured as git pager"
 
 # Install diff-so-fancy (alternative diff tool)
 print_info "Installing diff-so-fancy..."

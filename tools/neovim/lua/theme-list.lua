@@ -4,4 +4,6 @@ return {
   "savq/melange-nvim",
   "oskarnurm/koda.nvim",
   "marko-cerovac/material.nvim",
+  "sainnhe/gruvbox-material",
+  "projekt0n/github-nvim-theme",
 }
